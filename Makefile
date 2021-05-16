@@ -60,10 +60,12 @@ build/index.html: index.md $(ARTICLES) $(addprefix templates/,$(addsuffix .html,
 	AUTHOR="$(BLOG_AUTHOR)"; \
 	DESC="$(BLOG_DESC)"; \
 	STYLESHEET="./css/style.css"; \
+	FAVICON="./media/favicon.ico"; \
 	export TITLE; \
 	export AUTHOR; \
 	export DESC; \
 	export STYLESHEET; \
+	export FAVICON; \
 	envsubst < templates/header.html > $@; \
 	envsubst < templates/index_header.html >> $@; \
 	envsubst < templates/article_list_header.html >> $@; \
@@ -91,10 +93,12 @@ build/about.html: about.md $(addprefix templates/,$(addsuffix .html,header about
 	AUTHOR="$(BLOG_AUTHOR)"; \
 	DESC="$(BLOG_DESC)"; \
 	STYLESHEET="./css/style.css"; \
+	FAVICON="./media/favicon.ico"; \
 	export TITLE; \
 	export AUTHOR; \
 	export DESC; \
 	export STYLESHEET; \
+	export FAVICON; \
 	envsubst < templates/header.html > $@; \
 	envsubst < templates/about_header.html >> $@; \
 	markdown < about.md >> $@; \
@@ -107,10 +111,12 @@ build/blog/%.html: articles/%.md $(addprefix templates/,$(addsuffix .html,header
 	AUTHOR="$(shell git log --format="%an" -- "$<" | tail -n 1)"; \
 	DESC="$(BLOG_DESC)"; \
 	STYLESHEET="../css/style.css"; \
+	FAVICON="../media/favicon.ico"; \
 	export TITLE; \
 	export AUTHOR; \
 	export DESC; \
 	export STYLESHEET; \
+	export FAVICON; \
 	DATE_POSTED="$(shell git log -n 1 --diff-filter=A --date="format:$(BLOG_DATE_FORMAT)" --pretty=format:'%ad' -- "$<")"; \
 	export DATE_POSTED; \
 	DATE_EDITED="$(shell git log -n 1 --date="format:$(BLOG_DATE_FORMAT)" --pretty=format:'%ad' -- "$<")"; \
