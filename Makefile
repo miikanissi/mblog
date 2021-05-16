@@ -28,7 +28,7 @@ help:
 
 init:
 	mkdir -p articles static static/css static/media templates
-	printf '<!DOCTYPE html>\n<html lang="$(BLOG_LANG)">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>$$TITLE</title>\n<meta name="author" content="$$AUTHOR">\n<meta name="description" content="$$DESC">\n<link rel="stylesheet" href="$$STYLESHEET" type="text/css"/>\n</head>\n<body>\n' > templates/header.html
+	printf '<!DOCTYPE html>\n<html lang="$(BLOG_LANG)">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>$$TITLE</title>\n<meta name="author" content="$$AUTHOR">\n<meta name="description" content="$$DESC">\n<meta name="keywords" content="$(BLOG_KEYWORDS)">\n<link rel="icon" href="$$FAVICON" type="image/x-icon"/>\n<link rel="apple-touch-icon" type="image/x-icon" href="$$FAVICON">\n<link rel="canonical" href="$(BLOG_URL_ROOT)"/>\n<meta http-equiv="X-UA-Compatible" content="IE=edge">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="mobile-web-app-capable" content="yes">\n<meta property="og:image" content="$$FAVICON"/>\n<meta property="og:url" content="$(BLOG_URL_ROOT)"/>\n<meta property="og:site_name" content="$(BLOG_TITLE)"/><link rel="stylesheet" href="$$STYLESHEET" type="text/css"/>\n</head>\n<body>\n' > templates/header.html
 	printf '</body>\n</html>' > templates/footer.html
 	printf '<main>' > templates/index_header.html
 	printf '<h2>Articles</h2>\n<ul id=article-list>' > templates/article_list_header.html
