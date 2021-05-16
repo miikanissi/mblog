@@ -35,14 +35,14 @@ init:
 	printf '<li>$$DATE - <a href="$$URL">$$TITLE</a></li>' > templates/article_entry.html
 	printf '' > templates/article_separator.html
 	printf '</ul>' > templates/article_list_footer.html
-	printf '</main>\n<footer>\n</footer>' > templates/index_footer.html
+	printf '</main>\n<footer>\n<hr>\nBy <a href="$(BLOG_URL_ROOT)">$(BLOG_AUTHOR)</a><br>\nBuilt with <a href="https://github.com/miikanissi/mblog/">mblog</a>.\n</footer>' > templates/index_footer.html
 	printf '<main>' > templates/article_header.html
-	printf '</main>\n<footer>\n<hr>\n<p><i>Posted on: $$DATE_POSTED, last updated on: $$DATE_EDITED, written by: $$AUTHOR</i></p></footer>' > templates/article_footer.html
+	printf '</main>\n<footer>\n<hr>\nBy <a href="$(BLOG_URL_ROOT)">$$AUTHOR</a><br>\nPosted on: $$DATE_POSTED, last updated on: $DATE_EDITED<br>/nBuilt with <a href="https://github.com/miikanissi/mblog/">mblog</a>.\n</footer>' > templates/article_footer.html
 	printf '' > index.md
 	printf '' > about.md
 	printf '' > static/css/style.css
 	printf '<main>' > templates/about_header.html
-	printf '</main>\n<footer>\n</footer>' > templates/about_footer.html
+	printf '</main>\n<footer>\n<hr>\nBy <a href="$(BLOG_URL_ROOT)">$(BLOG_AUTHOR)</a><br>\nBuilt with <a href="https://github.com/miikanissi/mblog/">mblog</a>.\n</footer>' > templates/about_footer.html
 	printf 'build\n' > .git/info/exclude
 	printf 'build\nrss.xml\natom.xml' > .gitignore
 
