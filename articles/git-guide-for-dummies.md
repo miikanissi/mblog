@@ -47,15 +47,13 @@ This simple Git guide is satire and not meant to offend anyone. If you are a dum
 ### `git rm <filename>`
 - I don't need this shit.
 
-### `git commit --fixup`<commit hash> (or --squash)`
+### `git commit --fixup=<commit hash> (or --squash)`
 - Here's some new shit to fix some old shit. I'll rebase it later.
 
 ### `git rebase -i [--autosquash] <old commit>`
 - Are you dumb?
-  1. No
-    - Let's clean this shit up.
-  2. Yes
-    - Just fuck my shit up.
+  1. No, Let's clean this shit up.
+  2. Yes, Just fuck my shit up.
 
 ## That's it
 
