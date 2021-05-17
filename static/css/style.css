@@ -43,6 +43,16 @@ footer a,
 footer a:visited {
   color: #aaaaaa;
 }
+footer p.donation {
+    font-size: x-small;
+    word-break: break-all;
+}
+img[alt="XMR Logo"] {
+    max-width: 1em;
+    max-height: 1em;
+    display: inline;
+    margin: auto;
+}
 @media (prefers-color-scheme: dark) {
   body {
     background: black;
