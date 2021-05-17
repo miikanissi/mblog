@@ -4,36 +4,52 @@ This simple Git guide is satire and not meant to offend anyone. If you are a dum
 
 ### `git clone`
 - Get my shit.
+
 ### `git push`
 - Send my shit.
+
 ### `git add <filename>`
 - Track my new shit.
+
 ### `git add --patch`
 - Let me choose the new shit to track.
+
 ### `git commit`
 - This shit is good for now.
+
 ### `git pull`
 - Get the new shit.
+
 ### `git checkout -b <branch name>`
 - I'm going to work on my shit over here for now.
+
 ### `git checkout <branch name>`
 - I'm going back to this shit.
+
 ### `git merge <branch name>`
 - Mix that shit with this shit.
+
 ### `git checkout --theirs`
 - That shit is better than this shit, fuck this.
+
 ### `git checkout --ours`
 - This shit is better than that shit, fuck that.
+
 ### `git commit --amend`
 - I need to fix my shit.
+
 ### `git log`
 - Let's look at this shit.
+
 ### `git status`
 - I need to know my shit.
+
 ### `git rm <filename>`
 - I don't need this shit.
+
 ### `git commit --fixup`<commit hash> (or --squash)`
 - Here's some new shit to fix some old shit. I'll rebase it later.
+
 ### `git rebase -i [--autosquash] <old commit>`
 - Are you dumb?
   1. No
@@ -42,4 +58,5 @@ This simple Git guide is satire and not meant to offend anyone. If you are a dum
     - Just fuck my shit up.
 
 ## That's it
+
 Knowing how to use these Git commands is mostly all you need for a good Git workflow. Happy programming.
