@@ -7,6 +7,6 @@ BLOG_AUTHOR:=Miika Nissi
 BLOG_DATE_FORMAT:=%Y-%m-%d %r
 BLOG_INDEX_DATE_FORMAT:=%Y-%m-%d
 BLOG_URL_ROOT:=https://miikanissi.com/
-BLOG_REMOTE:=/var/www/blog
+BLOG_REMOTE:=/home/m/miikanissi.com/www
 BLOG_FEED_MAX:=20
 BLOG_FEEDS:=rss atom
