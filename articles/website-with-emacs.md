@@ -49,6 +49,7 @@ My setup is in my Emacs configuration file which you can find in its entirety fr
 ## Sitemap / Blog Index
 
 These functions are used to format a sitemap to have a date for each entry.
+
     (defun m/org-publish-org-sitemap (title list)
       "Sitemap generation function."
       (concat "#+TITLE: Sitemap\n\n"
@@ -66,7 +67,9 @@ These functions are used to format a sitemap to have a date for each entry.
             (t entry)))
 
 ## RSS feed
+
 RSS-feed generation is done with the ox-rss package, but it requires some additional customization for my needs.
+
     (defun m/org-rss-publish-to-rss (plist filename pub-dir)
       "Publish RSS with PLIST, only when FILENAME is 'rss.org'.
       PUB-DIR is when the output will be placed."
@@ -104,6 +107,7 @@ RSS-feed generation is done with the ox-rss package, but it requires some additi
 ## Project spec for org-publish
 
 This spec defines the directory structure and exporting options for org-publish
+
     (defun m/get-publish-project-spec ()
       "Return project settings for use with `org-publish-project-alist'."
       (let* ((website-root (file-name-as-directory
