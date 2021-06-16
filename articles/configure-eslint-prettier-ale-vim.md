@@ -24,7 +24,7 @@ Prettier is an opinionated code formatter (sometimes too opinionated) and you mi
 
 To install `prettier-eslint` we need `npm`. Then we can run:
 
-    npm -i -D prettier-eslint
+    npm install -D --save-dev prettier-eslint-cli
 
 
 ## Vim configuration for ALE and prettier-eslint
