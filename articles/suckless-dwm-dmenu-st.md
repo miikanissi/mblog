@@ -1,4 +1,4 @@
-# Suckless dwm, dmenu & st
+# Suckless dwm, dmenu and st
 
 I've been a fan of minimalist software for quite a while now and I'm alwasy looking for more simple and reliable technology. Suckless is a community of programmers who have made some great pieces of minimalist software that I recently started using. In this post I want to showcase my setup and some thoughts.
 
