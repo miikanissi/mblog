@@ -91,7 +91,7 @@ build/index.html: index-top.md index-bottom.md $(ARTICLES) $(addprefix templates
 	export BLOG_LIST; \
 	markdown < index-top.md > temp-index-top.html; \
 	INDEX_TOP_CONTENT=`cat temp-index-top.html`; \
-	rm temp-index-bottom.html; \
+	rm temp-index-top.html; \
 	export INDEX_TOP_CONTENT; \
 	markdown < index-bottom.md > temp-index-bottom.html; \
 	INDEX_BOTTOM_CONTENT=`cat temp-index-bottom.html`; \
