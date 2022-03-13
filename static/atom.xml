@@ -1,0 +1,1295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+<title type="text">Miika Nissi</title>
+<subtitle type="text">This is my personal website: a place where you can read and learn about technology related subjects.</subtitle>
+<updated>2021-11-30T17:26:14Z</updated>
+<link rel="alternate" type="text/html" href="https://miikanissi.com/"/>
+<id>https://miikanissi.com/atom.xml</id>
+<link rel="self" type="application/atom+xml" href="https://miikanissi.com/atom.xml"/>
+<entry>
+<title type="text">Qtile Window Manager</title>
+<link rel="alternate" type="text/html" href="https://miikanissi.com/blog/qtile-window-manager.html"/>
+<id>https://miikanissi.com/blog/qtile-window-manager.html</id>
+<published>2021-11-30T17:23:03Z</published>
+<updated>2021-11-30T17:26:07Z</updated>
+<author><name>Miika Nissi</name></author>
+<summary type="html"><![CDATA[<h1>Qtile Window Manager</h1>
+
+<p>I love tinkering with different Linux window managers and desktop environments. My latest interest has been <a href="http://www.qtile.org/">Qtile</a>. It is a dynamic tiling window manager written and configured in Python. I chose to give Qtile a try as I mainly program in Python on a day-to-day basis and thought it was a good idea to have a window manager which uses the same language.</p>
+
+<p>After a couple of weeks of use I'm already loving the customizability and workflow. In this post I will shortly go over my setup and share my configuration files.</p>
+
+<h2>My setup</h2>
+
+<p><img src="../media/desktop.png" alt="Desktop Environment screenshot" title="" /></p>
+
+<p>My setup is similar to what I have used in the past. I have a top bar which contains basic information such as time, date, volume, battery, system tray, workspaces and so on. The main color scheme I went with was a <a href="https://github.com/gruvbox-community/gruvbox">Gruvbox community light theme</a>. This is very pleasant theme on the eyes and I'm a big fan of light color themes.</p>
+
+<p>The rest of my setup is mostly the same as previously with Vim as my main text editor. Dunts as a notification manager. LightDM as a display manager. Autorandr to hot plug my external laptop monitors. Network Manager as a network manager (duh). St as my terminal emulator and bash as a shell.</p>
+
+<p>Configuration file for Qtile:</p>
+
+<pre><code># ~/.config/qtile/config.py
+# Miika Nissi, https://miikanissi.com
+
+# Standard library imports
+import os
+import subprocess
+from typing import List
+
+# Qtile imports
+from libqtile import bar, layout, widget, hook, qtile
+from libqtile.config import Click, Drag, Group, Key, Match, Screen
+from libqtile.lazy import lazy
+
+# Third party imports
+# For dynamic multiscreen, install xlib from pip
+from Xlib import display
+
+# colors
+black = "#f9f5d7"
+black0 = "#928374"
+red = "#cc241d"
+red0 = "#9d0006"
+green = "#98971a"
+green0 = "#79740e"
+yellow = "#d79921"
+yellow0 = "#b57614"
+blue = "#458588"
+blue0 = "#076678"
+purple = "#b16286"
+purple0 = "#8f3f71"
+aqua = "#689d6a"
+aqua0 = "#427b58"
+white = "#7c6f64"
+white0 = "#3c3836"
+background = black
+foreground = white0
+soft = "#f2e5bc"
+
+# Global variables
+mod = "mod4"
+terminal = "st"
+browser = "brave-browser"
+file_browser = "pcmanfm"
+home = os.path.expanduser("~")
+slash = ""
+separator = slash
+
+# Dynamic multiscreen setup
+d = display.Display()
+s = d.screen()
+r = s.root
+res = r.xrandr_get_screen_resources()._data
+
+screen_count = 0
+for output in res["outputs"]:
+    mon = d.xrandr_get_output_info(output, res["config_timestamp"])._data
+    if mon["num_preferred"] and mon["crtc"]:
+        screen_count += 1
+if screen_count == 0:
+    screen_count = 1
+
+
+@hook.subscribe.client_new
+def transient_window(window):
+    if window.window.get_wm_transient_for():
+        window.floating = True
+
+
+@hook.subscribe.startup_once
+def autostart():
+    """ Programs to start when window manager is loading """
+    autostart = os.path.expanduser("~/.config/qtile/autostart.sh")
+    subprocess.call([autostart])
+
+
+keys = [
+    # Switch between windows
+    Key([mod], "h", lazy.layout.left(), desc="Move focus to left"),
+    Key([mod], "l", lazy.layout.right(), desc="Move focus to right"),
+    Key([mod], "j", lazy.layout.down(), desc="Move focus down"),
+    Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
+    Key([mod], "space", lazy.layout.next(), desc="Move window focus to other window"),
+    # Move windows between left/right columns or move up/down in current stack.
+    # Moving out of range in Columns layout will create new column.
+    Key(
+        [mod, "shift"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"
+    ),
+    Key(
+        [mod, "shift"],
+        "l",
+        lazy.layout.shuffle_right(),
+        desc="Move window to the right",
+    ),
+    Key([mod, "shift"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
+    Key([mod, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
+    # Grow windows. If current window is on the edge of screen and direction
+    # will be to screen edge - window would shrink.
+    Key([mod, "control"], "h", lazy.layout.grow_left(), desc="Grow window to the left"),
+    Key(
+        [mod, "control"], "l", lazy.layout.grow_right(), desc="Grow window to the right"
+    ),
+    Key([mod, "control"], "j", lazy.layout.grow_down(), desc="Grow window down"),
+    Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
+    Key([mod], "comma", lazy.prev_screen(), desc="Focus to the left screen"),
+    Key([mod], "period", lazy.next_screen(), desc="Focus to the right screen"),
+    Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
+    # Toggle between split and unsplit sides of stack.
+    # Split = all windows displayed
+    # Unsplit = 1 window displayed, like Max layout, but still with
+    # multiple stack panes
+    Key(
+        [mod, "shift"],
+        "Return",
+        lazy.layout.toggle_split(),
+        desc="Toggle between split and unsplit sides of stack",
+    ),
+    Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
+    # Toggle between different layouts as defined below
+    Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
+    Key([mod, "shift"], "c", lazy.window.kill(), desc="Kill focused window"),
+    Key([mod, "shift"], "r", lazy.reload_config(), desc="Reload the config"),
+    Key(
+        [mod, "shift"],
+        "q",
+        lazy.spawn(
+            "rofi -show powermenu -modi powermenu:"
+            + home
+            + "/.local/bin/rofi_powermenu.sh"
+        ),
+        desc="Shutdown Qtile",
+    ),
+    Key([mod], "t", lazy.window.toggle_floating(), desc="Toggle floating window"),
+    Key([mod], "f", lazy.window.toggle_fullscreen(), desc="Toggle fullscreen window"),
+    # programs
+    Key([mod], "d", lazy.spawn("rofi -show run"), desc="Spawn Rofi run prompt"),
+    Key(
+        [mod, "shift"],
+        "d",
+        lazy.spawn(home + "/.local/bin/rofi_passmenu.sh"),
+        desc="Spawn Rofi passmenu",
+    ),
+    Key(
+        [mod, "shift", "control"],
+        "d",
+        lazy.spawn(home + "/.local/bin/rofi_passmenu_otp.sh"),
+        desc="Spawn Rofi passmenu one time password",
+    ),
+    Key(
+        [mod],
+        "z",
+        lazy.spawn(home + "/.local/bin/rofi_dman.sh"),
+        desc="Spawn Rofi device manager",
+    ),
+    Key(
+        [mod],
+        "x",
+        lazy.spawn(home + "/.local/bin/rofi_killprocess.sh"),
+        desc="Spawn Rofi process manager",
+    ),
+    Key(
+        [mod],
+        "q",
+        lazy.spawn(home + "/.local/bin/rofi_power_menu.sh"),
+        desc="Spawn Rofi power menu",
+    ),
+    Key(
+        [mod, "shift"],
+        "Print",
+        lazy.spawn(home + "/.local/bin/screenrecord.sh"),
+        desc="Screenrecord gif",
+    ),
+    Key([mod], "Print", lazy.spawn("flameshot gui"), desc="Screenshot tool"),
+    Key([mod], "w", lazy.spawn(browser), desc="Launch browser"),
+    Key([mod], "b", lazy.spawn(file_browser), desc="Launch file browser"),
+    Key([mod], "e", lazy.spawn("geary"), desc="Launch email client"),
+    Key(
+        [mod],
+        "s",
+        lazy.spawn("signal-desktop --start-in-tray --use-tray-icon"),
+        desc="Launch Signal messenger",
+    ),
+    Key(
+        [mod],
+        "m",
+        lazy.spawn(terminal + " -n ncmpcpp -t ncmpcpp -e ncmpcpp"),
+        desc="Launch NCMPCPP music player",
+    ),
+]
+
+groups = [Group(i) for i in "123456789"]
+
+for i in groups:
+    keys.extend(
+        [
+            # mod1 + letter of group = switch to group
+            Key(
+                [mod],
+                i.name,
+                lazy.group[i.name].toscreen(),
+                desc="Switch to group {}".format(i.name),
+            ),
+            # mod1 + shift + letter of group = switch to &amp; move focused window to group
+            Key(
+                [mod, "shift"],
+                i.name,
+                lazy.window.togroup(i.name, switch_group=True),
+                desc="Switch to &amp; move focused window to group {}".format(i.name),
+            ),
+            # Or, use below if you prefer not to switch to that group.
+            # # mod1 + shift + letter of group = move focused window to group
+            # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
+            #     desc="move focused window to group {}".format(i.name)),
+        ]
+    )
+
+layouts = [
+    layout.Columns(
+        border_focus=[purple],
+        border_normal=[black0],
+        border_width=3,
+        insert_position=1,
+    ),
+    layout.Max(),
+]
+
+widget_defaults = dict(
+    font="Ubuntu",
+    fontsize=12,
+    padding=3,
+    background=background,
+    foreground=foreground,
+)
+extension_defaults = widget_defaults.copy()
+
+caffeine = widget.GenPollText(
+    update_interval=1,
+    func=lambda: subprocess.check_output(
+        home + "/.local/bin/statusbar/caffeine.sh"
+    ).decode("utf-8"),
+    mouse_callbacks={
+        "Button1": lambda: qtile.cmd_spawn(
+            home + "/.local/bin/statusbar/caffeine.sh --toggle"
+        )
+    },
+    font="UbuntuNerdFont",
+    fontsize=16,
+    padding_right=4,
+    padding_left=0,
+)
+powermenu = widget.TextBox(
+    text="",
+    foreground=red,
+    padding=4,
+    font="UbuntuNerdFont",
+    fontsize=16,
+    mouse_callbacks={
+        "Button1": lambda: qtile.cmd_spawn(
+            "rofi -show powermenu -modi powermenu:"
+            + home
+            + "/.local/bin/rofi_powermenu.sh"
+        )
+    },
+)
+volume = widget.Volume(volume_app="pavucontrol", background=soft, padding=0)
+battery = widget.Battery(
+    format="{char}{percent:2.0%}",
+    unknown_char="",
+    show_short_text=False,
+    low_foreground=red,
+    notify_below=10,
+    padding=0,
+)
+mpd = widget.Mpd2(
+    idle_message="idle",
+    idle_format="{play_status} [{repeat}{random}{single}{consume}{updating_db}] {idle_message}",
+    status_format="{play_status} [{repeat}{random}{single}{consume}{updating_db}] {artist} - {title}",
+    no_connection="",
+    space="",
+)
+
+screens = [
+    Screen(
+        top=bar.Bar(
+            [
+                widget.CurrentLayoutIcon(padding=3),
+                widget.GroupBox(
+                    highlight_method="line",
+                    disable_drag=True,
+                    hide_unused=True,
+                    active=foreground,
+                    inactive=black0,
+                    block_highlight_text_color=foreground,
+                    this_screen_border=purple,
+                    this_current_screen_border=purple,
+                    other_screen_border=black0,
+                    other_current_screen_border=foreground,
+                    highlight_color=[black0],
+                    padding=6,
+                    spacing=0,
+                    margin_x=0,
+                ),
+                widget.WindowName(for_current_screen=True, padding=6),
+                mpd,
+                widget.TextBox(
+                    padding=0,
+                    text=separator,
+                    foreground=soft,
+                    fontsize=28,
+                    font="UbuntuNerdFont",
+                ),
+                widget.TextBox(text="vol:", background=soft),
+                volume,
+                widget.TextBox(
+                    padding=0,
+                    text=separator,
+                    background=soft,
+                    foreground=background,
+                    fontsize=28,
+                    font="UbuntuNerdFont",
+                ),
+                widget.TextBox(text="bat:"),
+                battery,
+                widget.TextBox(
+                    padding=0,
+                    text=separator,
+                    foreground=soft,
+                    fontsize=28,
+                    font="UbuntuNerdFont",
+                ),
+                widget.Clock(format="%I:%M%P %m/%d/%Y", background=soft, padding=0),
+                widget.TextBox(
+                    padding=0,
+                    text=separator,
+                    background=soft,
+                    foreground=background,
+                    fontsize=28,
+                    font="UbuntuNerdFont",
+                ),
+                caffeine,
+                widget.Systray(padding=2),
+                powermenu,
+            ],
+            26,
+            background=background,
+        ),
+    ),
+]
+if screen_count &gt; 1:
+    for screen in range(0, screen_count):
+        screens.append(
+            Screen(
+                top=bar.Bar(
+                    [
+                        widget.CurrentLayoutIcon(padding=3),
+                        widget.GroupBox(
+                            highlight_method="line",
+                            disable_drag=True,
+                            hide_unused=True,
+                            active=foreground,
+                            inactive=black0,
+                            block_highlight_text_color=foreground,
+                            this_screen_border=purple,
+                            this_current_screen_border=purple,
+                            other_screen_border=black0,
+                            other_current_screen_border=foreground,
+                            highlight_color=[black0],
+                            padding=6,
+                            spacing=0,
+                            margin_x=0,
+                        ),
+                        widget.WindowName(for_current_screen=True, padding=6),
+                        widget.TextBox(
+                            padding=0,
+                            text=separator,
+                            foreground=soft,
+                            fontsize=28,
+                            font="UbuntuNerdFont",
+                        ),
+                        widget.TextBox(text="vol:", background=soft),
+                        volume,
+                        widget.TextBox(
+                            padding=0,
+                            text=separator,
+                            background=soft,
+                            foreground=background,
+                            fontsize=28,
+                            font="UbuntuNerdFont",
+                        ),
+                        widget.TextBox(text="bat:"),
+                        battery,
+                        widget.TextBox(
+                            padding=0,
+                            text=separator,
+                            foreground=soft,
+                            fontsize=28,
+                            font="UbuntuNerdFont",
+                        ),
+                        widget.Clock(
+                            format="%I:%M%P %m/%d/%Y", background=soft, padding=0
+                        ),
+                        widget.TextBox(
+                            padding=0,
+                            text=separator,
+                            background=soft,
+                            foreground=background,
+                            fontsize=28,
+                            font="UbuntuNerdFont",
+                        ),
+                        caffeine,
+                        widget.TextBox(),
+                        powermenu,
+                    ],
+                    26,
+                    background=background,
+                ),
+            ),
+        )
+
+# Drag floating layouts.
+mouse = [
+    Drag(
+        [mod],
+        "Button1",
+        lazy.window.set_position_floating(),
+        start=lazy.window.get_position(),
+    ),
+    Drag(
+        [mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()
+    ),
+    Click([mod], "Button2", lazy.window.bring_to_front()),
+]
+
+dgroups_key_binder = None
+dgroups_app_rules = []
+follow_mouse_focus = True
+bring_front_click = False
+cursor_warp = False
+floating_layout = layout.Floating(
+    float_rules=[
+        # Run the utility of `xprop` to see the wm class and name of an X client.
+        *layout.Floating.default_float_rules,
+        Match(title="Quit and close tabs?"),
+        Match(wm_type="utility"),
+        Match(wm_type="notification"),
+        Match(wm_type="toolbar"),
+        Match(wm_type="splash"),
+        Match(wm_type="dialog"),
+        Match(wm_class="ncmpcpp"),
+        Match(wm_class="Conky"),
+        Match(wm_class="file_progress"),
+        Match(wm_class="confirm"),
+        Match(wm_class="dialog"),
+        Match(wm_class="download"),
+        Match(wm_class="error"),
+        Match(wm_class="notification"),
+        Match(wm_class="splash"),
+        Match(wm_class="toolbar"),
+        Match(wm_class="confirmreset"),  # gitk
+        Match(wm_class="makebranch"),  # gitk
+        Match(wm_class="maketag"),  # gitk
+        Match(wm_class="ssh-askpass"),  # ssh-askpass
+        Match(title="branchdialog"),  # gitk
+        Match(title="pinentry"),  # GPG key password entry
+    ]
+)
+auto_fullscreen = False
+focus_on_window_activation = "smart"
+auto_minimize = False
+
+# Needed for some Java programs
+wmname = "LG3D"
+# Fixes QT apps
+os.environ["QT_QPA_PLATFORMTHEME"] = "qt5ct"
+</code></pre>
+
+<p>This configuration will surely change in the future and you can always find my most up-to-date setup on my <a href="https://github.com/miikanissi/dotfiles">GitHub</a>.</p>]]></summary>
+</entry>
+<entry>
+<title type="text">Bachelor's Thesis</title>
+<link rel="alternate" type="text/html" href="https://miikanissi.com/blog/bachelors-thesis.html"/>
+<id>https://miikanissi.com/blog/bachelors-thesis.html</id>
+<published>2021-11-21T14:40:12Z</published>
+<updated>2021-11-21T14:40:12Z</updated>
+<author><name>Miika Nissi</name></author>
+<summary type="html"><![CDATA[<h1>Bachelor's Thesis</h1>
+
+<p>For the past year I have been working for a company that specializes in open source business management software, especially <a href="https://www.odoo.com/">Odoo - Open Source ERP and CRM</a>. In spring 2021 I was tasked to research Odoo's (version 14) abilities as an Event Management System for a customer and what improvements needed to be made. I found three important features that were missing and together with my employer and the customer we decided that I could use the development of these features as my Bachelor's thesis.</p>
+
+<h2>The missing features and development</h2>
+
+<h3>1. Canceling registrations</h3>
+
+<p>In the core version of Odoo 14, registrants do not have the ability to cancel their own registrations - only the event manager could cancel them. This is a big inconvenience as registrants would need to contact the event manager manually in case of a cancellation. My solution was to create a portal view for the registrants to manage the state of their registrations. This portal could be accessed through a unique URL sent with the registration confirmation email.</p>
+
+<p>Additionally, the event manager could define how long before the event begins the cancellations are possible. For example, the event manager could choose to close cancellations when there is less than 24 hours until the event begins.</p>
+
+<h3>2. Waiting list</h3>
+
+<p>It is common for an event management system to have a waiting list if an event is fully booked. However, Odoo 14 does not have this feature. My solution was to make a user-friendly way to sign up for a waiting list with an email notification if the event had more seats available.</p>
+
+<p>The process of joining a waiting list followed the same process as registrations with the difference that the registrant was not required to make a payment. If the event got more seats available the waiting list, members would receive an email to confirm their seat in a first-come first-serve basis. For a paid event this confirmation included making a payment through the system.</p>
+
+<h3>3. Questions</h3>
+
+<p>Odoo 14 has the ability to ask registrants custom questions in the registration form. These questions could either be free text questions or drop down selections, but our customer had a need for more complex registration forms. My solution was to integrate Odoo's event management with an existing Odoo survey feature. This survey allows a more customizable way of creating complex forms and with this integration we saved time and future maintenance cost by not creating a fully custom form creation system and instead used a pre-existing feature.</p>
+
+<h2>Finishing touches</h2>
+
+<p>I wrote my thesis based on the project after the development process. The thesis is now published and can be viewed from a permanent address at <a href="https://urn.fi/URN:NBN:fi:amk-2021111220157">https://urn.fi/URN:NBN:fi:amk-2021111220157</a>.</p>]]></summary>
+</entry>
+<entry>
+<title type="text">Suckless dwm, dmenu and st</title>
+<link rel="alternate" type="text/html" href="https://miikanissi.com/blog/suckless-dwm-dmenu-st.html"/>
+<id>https://miikanissi.com/blog/suckless-dwm-dmenu-st.html</id>
+<published>2021-06-28T21:08:01Z</published>
+<updated>2021-06-28T23:33:00Z</updated>
+<author><name>Miika Nissi</name></author>
+<summary type="html"><![CDATA[<h1>Suckless dwm, dmenu and st</h1>
+
+<p>I've been a fan of minimalist software for quite a while now and I'm alwasy looking for more simple and reliable technology. Suckless is a community of programmers who have made some great pieces of minimalist software that I recently started using. In this post I want to showcase my setup and some thoughts.</p>
+
+<h2>dwm - a dynamic window manager</h2>
+
+<p><a href="https://dwm.suckless.org/">dwm</a>, like all of suckless software, has no configuration files or options. Everything is hard-coded into the source code. To customize dwm, you need to modify the source code and compile it yourself. There are no binary releases at all.</p>
+
+<p>This process of modifying the source code might be intimidating but due to the community around suckless software there are countless of patches available for different needs. Here is a list of patches I'm currently using for dwm:</p>
+
+<ul>
+<li><a href="https://dwm.suckless.org/patches/actualfullscreen/">actualfullscreen</a>, allows toggling a window as fullscreen.</li>
+<li><a href="https://dwm.suckless.org/patches/alwayscenter/">alwayscenter</a>, all floating windows are centered on spawn.</li>
+<li><a href="https://dwm.suckless.org/patches/attachbottom/">attachbottom</a>, new windows are attached to the bottom of the stack instead of top.</li>
+<li><a href="https://dwm.suckless.org/patches/autostart/">autostart</a>, run a custom bash script on dwm startup.</li>
+<li><a href="https://dwm.suckless.org/patches/colorbar/">colorbar</a>, ability to change the colors of the bar for every element.</li>
+<li><a href="https://dwm.suckless.org/patches/hide_vacant_tags/">hide vacant tags</a>, hides all the tags not in use from the bar.</li>
+<li><a href="https://dwm.suckless.org/patches/pertag/">pertag</a>, allows each tag to have a different layout.</li>
+<li><a href="https://dwm.suckless.org/patches/stacker/">stacker</a>, move windows up/down the stack.</li>
+<li><a href="https://dwm.suckless.org/patches/staticstatus/">staticstatus</a>, statusbar only on one monitor.</li>
+<li><a href="https://dwm.suckless.org/patches/statuscmd/">statuscmd</a>, ability to have clickable statusbar items.</li>
+<li><a href="https://dwm.suckless.org/patches/vanitygaps/">vanitygaps</a>, adds gaps between windows.</li>
+<li><a href="https://github.com/miikanissi/dotfiles/blob/master/.local/src/suckless/dwm/patches/dwm-xrdb-6.2.diff">xrdb</a>, reads colors from <code>~/.Xresources</code> at run time.</li>
+</ul>
+
+<p>As you can see, I have quite a list of extra patches applied to dwm, increasing the lines of code from around 2000 to 2700. I see many of these patches as almost necessary, such as the fullscreen patch or the stacker patch.</p>
+
+<h3>dwmblocks - status bar for dwm</h3>
+
+<p><a href="https://github.com/torrinfail/dwmblocks">dwmblocks</a> is a modular status bar for dwm. It is not made by suckless but it follows the same spirit of suckless software by being source based and only 200 lines of code.</p>
+
+<p>"Blocks" are shell scripts that output some information. You can then define how often or what signal is needed to run the script. For example I have this script for my clock that runs every 30 seconds outputting the date and time. Clicking the clock opens a terminal with <code>calcurse</code>.</p>
+
+<pre><code>#!/bin/sh
+
+case $BUTTON in
+        1) setsid -f $TERMINAL -e calcurse ;;
+esac
+date "+ %Y %b %d (%a), %-I:%M%p"
+</code></pre>
+
+<h2>dmenu - dynamic menu</h2>
+
+<p><a href="https://tools.suckless.org/dmenu/">dmenu</a> is a dynamic menu which allows you to create different prompts. By default dmenu has a basic run prompt to launch applications.</p>
+
+<p>I have also made a few scripts utilizing dmenu such as <a href="https://github.com/miikanissi/dotfiles/blob/master/.local/bin/dman.sh">dman</a>, which allows you to mount/unmount devices, and <a href="https://github.com/miikanissi/dotfiles/blob/master/.local/bin/killprocess.sh">killprocess</a>, which allows you to easily kill unresponsive programs.</p>
+
+<p>Another useful dmenu script I found is <a href="https://github.com/miikanissi/dotfiles/blob/master/.local/bin/passmenu.sh">passmenu</a>. Passmenu allows you to get your passwords from Pass (The Standard UNIX Password Manager). I have made a seperate blog post about Pass <a href="https://miikanissi.com/blog/pass-the-standard-unix-password.html">here</a>.</p>
+
+<p>I also have applied a couple of dmenu patches:</p>
+
+<ul>
+<li><a href="https://tools.suckless.org/dmenu/patches/xresources-alt/">xresources-alt</a>, reads colors from <code>~/.Xresources</code>.</li>
+<li><a href="https://tools.suckless.org/dmenu/patches/password/">password</a>, allows dmenu to hide keyboard input as dots with the option <code>-P</code>.</li>
+</ul>
+
+<h2>st - simple terminal</h2>
+
+<p>You'd think finding a good terminal emulator that is fast and simple would be easy. I have tried xterm, urxvt, alacritty, kitty and so on, but they either lack basic features or are too slow and complicated for no reason. However <a href="https://st.suckless.org/">st</a> is a simple terminal emulator for X that works great with a few extra patches.</p>
+
+<p>The patches I have applied are:</p>
+
+<ul>
+<li><a href="https://st.suckless.org/patches/bold-is-not-bright/">bold is not bright</a>, renders bold font with same color as regular font.</li>
+<li><a href="https://st.suckless.org/patches/scrollback/">scrollback</a>, allows scrolling back and forth on the terminal.</li>
+<li><a href="https://st.suckless.org/patches/xresources/">xresources</a>, reads colors and other options from <code>~/.Xresources</code>.</li>
+</ul>
+
+<h2>Afterword</h2>
+
+<p>At first I was hesitant to use suckless software because it is source based which made it seem intimidating. But the initial learning curve was worth it. Now I have my own custom builds of these programs and everything works great. I will keep this post updated if I face any problems or I make further changes. So far I'm more than pleased.</p>]]></summary>
+</entry>
+<entry>
+<title type="text">Configuring ESLint and Prettier for Vim with ALE</title>
+<link rel="alternate" type="text/html" href="https://miikanissi.com/blog/configure-eslint-prettier-ale-vim.html"/>
+<id>https://miikanissi.com/blog/configure-eslint-prettier-ale-vim.html</id>
+<published>2021-05-22T00:56:55Z</published>
+<updated>2021-06-16T19:29:21Z</updated>
+<author><name>Miika Nissi</name></author>
+<summary type="html"><![CDATA[<h1>Configuring ESLint and Prettier for Vim with ALE</h1>
+
+<p>Recently, I wanted to setup Vim with ESLint and Prettier for JavaScript development and it took me a surprisingly long time to find the best solution. In this post, I'm going to go over the steps needed to get your JavaScript linting and automatic fixing working inside of Vim.</p>
+
+<h2>Asynchronous Lint Engine (ALE) for Vim</h2>
+
+<p>First, we are going to need a Vim plugin to help us integrate ESLint and Prettier into Vim. <a href="https://github.com/dense-analysis/ale">Asynchronous Lint Engine(ALE)</a> is a Vim/NeoVim plugin providing on-the-fly syntax checking and automatic file formatting. It integrates with various linters and is easy to customize.</p>
+
+<p>I'm not going to go into depth on all the different ways of installing VIM plugins. For the sake of this post, we're going to use <a href="https://github.com/junegunn/vim-plug">vim-plug</a> as our plugin manager. I will assume you already have it installed according to the installation instructions.</p>
+
+<p>In your <code>vimrc</code> add:</p>
+
+<pre><code>call plug#begin('$HOME/.vim/plugged')
+Plug 'dense-analysis/ale'
+call plug#end()
+</code></pre>
+
+<p>Running <code>:PlugInstall</code> in Vim will install ALE for us and we can move on.</p>
+
+<h2>ESLint &amp; Prettier from NPM</h2>
+
+<p>Generally, I like to install all of my programs from the official repository of my Linux distribution or build them from source. In this case, we need to use <code>npm</code> to install <a href="https://github.com/prettier/prettier-eslint">prettier-eslint</a>. Prettier-eslint combines <a href="https://prettier.io/">Prettier</a> and <a href="https://eslint.org/">ESLint</a> to format a JavaScript file.</p>
+
+<p>Prettier is an opinionated code formatter (sometimes too opinionated) and you might need to follow a specific guideline provided by ESLint. Prettier-eslint first runs Prettier on a JavaScript file. After formatting, it hands the process over to ESLint, which can apply some specific changes based on <a href="https://eslint.org/docs/rules/">ESLint rules</a>. ESLint rules are specified in a configuration file located in <code>~/.eslintrc*</code>.</p>
+
+<p>To install <code>prettier-eslint</code> we need <code>npm</code>. Then we can run:</p>
+
+<pre><code>npm install -D --save-dev prettier-eslint-cli
+</code></pre>
+
+<h2>Vim configuration for ALE and prettier-eslint</h2>
+
+<p>Most of the heavy lifting is automatically done by <code>prettier-eslint</code> so our VIM configuration is pretty simple. To have ALE use <code>prettier-eslint</code>, we need to define it as a "fixer" in our <code>vimrc</code>:</p>
+
+<pre><code>let g:ale_fixers = {
+      \   'javascript': ['eslint'],
+      \}
+</code></pre>
+
+<p>Now we can run <code>:ALEFix</code> in our JavaScript files to format and fix our code.</p>
+
+<p>We should also define ESLint as our linter for JavaScript files. This means we will see error messages on-the-fly as we work on our code.</p>
+
+<pre><code>let g:ale_linters = {
+      \   'javascript': ['eslint'],
+      \}
+</code></pre>
+
+<p>Personally, I like to have a few other configuration options for ALE. These include fixing and formatting code on save, remove code highlighting on errors, and show error and warning sings in the Vim sign column (on the left).</p>
+
+<pre><code>let g:ale_fix_on_save = 1
+let g:ale_sign_error = '&gt;&gt;'
+let g:ale_sign_warning = '--'
+let g:ale_echo_msg_error_str = 'E'
+let g:ale_echo_msg_warning_str = 'W'
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+let g:ale_python_flake8_options = '--max-line-length 88 --extend-ignore=E203'
+</code></pre>
+
+<h2>Afterword</h2>
+
+<p>I felt the need to write this post as most solutions I could find on search engines were outdated or unnecessarily complicated.</p>
+
+<p>Notice a mistake in this post or need help setting up your JavaScript environment in Vim? Feel free to contact me via email at <code>miika@miikanissi.com</code>.</p>]]></summary>
+</entry>
+<entry>
+<title type="text">Git Guide for Dummies</title>
+<link rel="alternate" type="text/html" href="https://miikanissi.com/blog/git-guide-for-dummies.html"/>
+<id>https://miikanissi.com/blog/git-guide-for-dummies.html</id>
+<published>2021-05-17T11:28:40Z</published>
+<updated>2021-05-17T11:36:18Z</updated>
+<author><name>Miika Nissi</name></author>
+<summary type="html"><![CDATA[<h1>Git Guide for Dummies</h1>
+
+<p>This simple Git guide is satire and not meant to offend anyone. If you are a dummy or a beginner to using Git this might actually be helpful to you and work as a cheatsheet (I sometimes visit this post when I forget a command).</p>
+
+<h3><code>git clone</code></h3>
+
+<ul>
+<li>Get my shit.</li>
+</ul>
+
+<h3><code>git push</code></h3>
+
+<ul>
+<li>Send my shit.</li>
+</ul>
+
+<h3><code>git add &lt;filename&gt;</code></h3>
+
+<ul>
+<li>Track my new shit.</li>
+</ul>
+
+<h3><code>git add --patch</code></h3>
+
+<ul>
+<li>Let me choose the new shit to track.</li>
+</ul>
+
+<h3><code>git commit</code></h3>
+
+<ul>
+<li>This shit is good for now.</li>
+</ul>
+
+<h3><code>git pull</code></h3>
+
+<ul>
+<li>Get the new shit.</li>
+</ul>
+
+<h3><code>git checkout -b &lt;branch name&gt;</code></h3>
+
+<ul>
+<li>I'm going to work on my shit over here for now.</li>
+</ul>
+
+<h3><code>git checkout &lt;branch name&gt;</code></h3>
+
+<ul>
+<li>I'm going back to this shit.</li>
+</ul>
+
+<h3><code>git merge &lt;branch name&gt;</code></h3>
+
+<ul>
+<li>Mix that shit with this shit.</li>
+</ul>
+
+<h3><code>git checkout --theirs</code></h3>
+
+<ul>
+<li>That shit is better than this shit, fuck this.</li>
+</ul>
+
+<h3><code>git checkout --ours</code></h3>
+
+<ul>
+<li>This shit is better than that shit, fuck that.</li>
+</ul>
+
+<h3><code>git commit --amend</code></h3>
+
+<ul>
+<li>I need to fix my shit.</li>
+</ul>
+
+<h3><code>git log</code></h3>
+
+<ul>
+<li>Let's look at this shit.</li>
+</ul>
+
+<h3><code>git status</code></h3>
+
+<ul>
+<li>I need to know my shit.</li>
+</ul>
+
+<h3><code>git rm &lt;filename&gt;</code></h3>
+
+<ul>
+<li>I don't need this shit.</li>
+</ul>
+
+<h3><code>git commit --fixup=&lt;commit hash&gt; (or --squash)</code></h3>
+
+<ul>
+<li>Here's some new shit to fix some old shit. I'll rebase it later.</li>
+</ul>
+
+<h3><code>git rebase -i [--autosquash] &lt;old commit&gt;</code></h3>
+
+<ul>
+<li>Are you dumb?
+<ol>
+<li>No, Let's clean this shit up.</li>
+<li>Yes, Just fuck my shit up.</li>
+</ol></li>
+</ul>
+
+<h2>That's it</h2>
+
+<p>Knowing how to use these Git commands is mostly all you need for a good Git workflow. Happy programming.</p>]]></summary>
+</entry>
+<entry>
+<title type="text">Email setup with mbsync + mu4e</title>
+<link rel="alternate" type="text/html" href="https://miikanissi.com/blog/email-setup-with-mbsync-mu4e.html"/>
+<id>https://miikanissi.com/blog/email-setup-with-mbsync-mu4e.html</id>
+<published>2021-05-17T11:23:53Z</published>
+<updated>2021-05-17T11:23:53Z</updated>
+<author><name>Miika Nissi</name></author>
+<summary type="html"><![CDATA[<h1>Email setup with mbsync + mu4e</h1>
+
+<p>Mu4e is a powerful email client for Emacs. It is rather simple to use and having your mail in Emacs is the best thing ever. I recently started using mu4e as my email client and it turns out configuring it is a bit of a hassle. This post works as a tutorial on setting up mu4e email client for Emacs with mbsync to sync email.</p>
+
+<h2>Pass to securely store your passwords</h2>
+
+<p>To be able to store your email password securely you need to setup gpg and pass. I have previously made a post on <a href="https://miikanissi.com/blog/pass-the-standard-unix-password-manager.html">configuring pass</a> so take a look at it before you proceed.</p>
+
+<p>Every time you want to add a new email make sure you add a pass entry for it first.</p>
+
+<h2>Setting up mbsync</h2>
+
+<p>To fetch and sync email from the mail server using imap, you need to use <a href="https://wiki.archlinux.org/index.php/isync">isync/mbsync</a>. First you need to install this on your system with your package manager.</p>
+
+<p>For Arch Linux:</p>
+
+<pre><code>sudo pacman -S isync
+</code></pre>
+
+<p>For Ubuntu 20.04:</p>
+
+<pre><code>sudo apt install isync
+</code></pre>
+
+<p>Mbsync configuration file is located at <code>~/.mbsyncrc</code>. A typical configuration looks as follows (replace the content between &lt;,> with values provided by your email provider):</p>
+
+<pre><code>IMAPAccount &lt;account&gt;
+Host &lt;imap.host.tld&gt;
+Port &lt;993&gt;
+User &lt;email username&gt;
+PassCmd "pass &lt;account&gt;"
+SSLType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore &lt;account&gt;-remote
+Account &lt;account&gt;
+
+MaildirStore &lt;account&gt;-local
+SubFolders Verbatim
+Path ~/Mail/&lt;account&gt;/
+Inbox ~/Mail/&lt;account&gt;/Inbox
+Trash ~/Mail/&lt;account&gt;/Trash
+
+Channel &lt;account&gt;
+Far :&lt;account&gt;-remote:
+Near :&lt;account&gt;-local:
+;; Patterns are the names of your mail folders. You can also use * for all of your mail folders.
+Patterns INBOX "Sent Items" Drafts Trash Spam?
+SyncState *
+Create Both
+Expunge Both
+CopyArrivalDate yes
+Sync All
+</code></pre>
+
+<p><strong>Note</strong>: If you have 2FA enabled you might need to use an app specific password. Confirm this from your email provider.</p>
+
+<p><strong>Note2</strong>: See <a href="https://wiki.archlinux.org/index.php/isync">ArchWiki article about isync</a> for more configuration options and tips.</p>
+
+<p>Make sure to create the root folder used in the mbsync configuration:</p>
+
+<pre><code>mkdir -p ~/Mail/&lt;account&gt;
+</code></pre>
+
+<p>If everything was configured correctly you can now sync your email to your local folder:</p>
+
+<pre><code>mbsybc &lt;account&gt;
+</code></pre>
+
+<h2>Mu4e</h2>
+
+<p>Mu4e, the Emacs mail client, comes included with the mu, mail indexing program. You can get mu directly from their <a href="https://github.com/djcb/mu">GitHub page</a> or various package managers.</p>
+
+<p>For Arch Linux with AUR helper yay:</p>
+
+<pre><code>yay -S mu
+</code></pre>
+
+<p>For Ubuntu 20.04:</p>
+
+<pre><code>sudo apt install maildir-utils
+</code></pre>
+
+<p>Mu4e configuration for Emacs (replace content between &lt;,> with your own values):</p>
+
+<pre><code>(use-package mu4e
+  :ensure nil
+  :defer 5
+  :load-path "/usr/share/emacs/site-lisp/mue4/"
+  :config
+  (require 'org-mu4e)
+
+  ;; refresh mbsync every 10 minutes
+  (setq mu4e-update-interval (* 10 60))
+  (setq mu4e-get-mail-command "mbsync -a")
+  (setq mu4e-maildir "&lt;maildir&gt;")
+  ;; use pass to store passwords
+  ;; file auth looks for is ~/.password-store/&lt;smtp.host.tld&gt;:&lt;port&gt;/&lt;name&gt;
+  (auth-source-pass-enable)
+  (setq auth-sources '(password-store))
+  (setq auth-source-debug t)
+  (setq auth-source-do-cache nil)
+  ;; no reply to self
+  (setq mu4e-compose-dont-reply-to-self t)
+  (setq mu4e-compose-keep-self-cc nil)
+  ;; moving messages renames files to avoid errors
+  (setq mu4e-change-filenames-when-moving t)
+  ;; Configure the function to use for sending mail
+  (setq message-send-mail-function 'smtpmail-send-it)
+  ;; Display options
+  (setq mu4e-view-show-images t)
+  (setq mu4e-view-show-addresses 't)
+  ;; Composing mail
+  (setq mu4e-compose-dont-reply-to-self t)
+  ;; don't keep message buffers around
+  (setq message-kill-buffer-on-exit t)
+  ;; Don't ask for a 'context' upon opening mu4e
+  (setq mu4e-context-policy 'pick-first)
+  ;; Don't ask to quit... why is this the default?
+  (setq mu4e-confirm-quit nil)
+
+  ;; Set up contexts for email accounts
+  (setq mu4e-contexts
+        (list
+         (make-mu4e-context
+          :name "&lt;mail account name&gt;"
+          :match-func
+          (lambda (msg)
+            (when msg
+              (string-prefix-p "/&lt;mail account dir&gt;" (mu4e-message-field msg :maildir))))
+          :vars `((user-mail-address . "&lt;mail address&gt;")
+                  (user-full-name    . "&lt;mail full name&gt;")
+                  (smtpmail-smtp-server  . "&lt;smtp.host.tld&gt;")
+                  (smtpmail-smtp-service . "&lt;smtp port&gt;")
+                  (smtpmail-stream-type  . ssl)
+                  (smtpmail-smtp-user . "&lt;email username&gt;")
+                  (mu4e-compose-signature . "&lt;email signature&gt;")
+                  (mu4e-drafts-folder  . "&lt;mail account dir&gt;/&lt;draft dir&gt;")
+                  (mu4e-sent-folder  . "&lt;mail account dir&gt;/&lt;sent dir&gt;")
+                  (mu4e-refile-folder  . "&lt;mail account dir&gt;/&lt;archive dir&gt;")
+                  (mu4e-trash-folder  . "&lt;mail account dir&gt;/&lt;trash dir&gt;")))))
+
+  (setq m/mu4e-inbox-query
+        "(maildir:/&lt;mail account dir&gt;/&lt;inbox dir&gt;) AND flag:unread")
+  (defun m/go-to-inbox ()
+    (interactive)
+    (mu4e-headers-search m/mu4e-inbox-query))
+  ;; start mu4e
+  (mu4e t))
+</code></pre>
+
+<p><strong>Note</strong>: Mu4e looks for your password file in <code>~/.password-store/&lt;smtp.host.tld&gt;:&lt;port&gt;/&lt;mail account name&gt;</code></p>
+
+<p>This is a rather basic configuration for one email account. For my full configuration you can check my <a href="https://github.com/miikanissi/dotfiles/tree/master/.emacs.d/">dotfiles on GitHub</a>.</p>
+
+<h2>Afterword</h2>
+
+<p>If everything was configured correctly you should now be able to read and send email from Emacs using mu4e. If you need any help with your configuration don't hesitate contacting me with email: <code>miika@miikanissi.com</code>.</p>]]></summary>
+</entry>
+<entry>
+<title type="text">Managing dotfiles with Git</title>
+<link rel="alternate" type="text/html" href="https://miikanissi.com/blog/managing-dotfiles-with-git.html"/>
+<id>https://miikanissi.com/blog/managing-dotfiles-with-git.html</id>
+<published>2021-05-17T11:14:25Z</published>
+<updated>2021-05-17T11:14:25Z</updated>
+<author><name>Miika Nissi</name></author>
+<summary type="html"><![CDATA[<h1>Managing dotfiles with Git</h1>
+
+<p>Dotfiles are user specific application configuration files. Traditionally they are stored as files whose filename starts with a dot, hence the term dotfiles. It is common to track these dotfiles with a version control system such as Git for easy portability between systems. In this post I will show my way of tracking and managing these dotfiles.</p>
+
+<h2>Setup</h2>
+
+<p>For easy management of all dotfiles in the home directory I like to create a git repository which has a work tree in the <code>$HOME</code> directory but a seperate git directory in <code>$HOME/dotfiles</code>. That way this git repository won't get in the way of other potential Git repositories you might have in your home directory or in subdirectories.</p>
+
+<p>To do this you first need to create a directory dotfiles in your home directory <code>mkdir dotfiles</code>. Next we create an alias so we don't need to type this long command every time. To do this paste the following:</p>
+
+<pre><code>echo "alias dotfiles=\"git --work-tree $HOME --git-dir $HOME/dotfiles\"" &gt;&gt; ~/.bashrc &amp;&amp; bash
+</code></pre>
+
+<p>We can now initialize the dotfiles directory as a git directory by running <code>dotfiles init</code> inside of it. To add a remote origin for this repository we run <code>dotfiles remote add -t \* -f origin &lt;url-of-the-remote-repository&gt;</code>. If this new remote repository already has dotfiles that you want to sync with your system you can simply checkout the branch you want. For example <code>dotfiles checkout master</code>.</p>
+
+<p>That is all you need to do to create this git repository, and you can do all the normal git specific commands but you just need to use dotfiles instead of git as the prefix. To add a new file to be tracked by this repository you would do <code>dotfiles add &lt;filename&gt;</code>, <code>dotfiles commit -m "&lt;Your commit message&gt;"</code>, <code>dotfiles push origin master</code>.</p>
+
+<p>Since your home directory has a lot of files you would most likely want to ignore all untracked files when checking the status of this git repository. For that we can run <code>dotfiles config --local status.showUntrackedFiles no</code>.</p>
+
+<h2>Afterword</h2>
+
+<p>This is how I personally manage my own dotfiles and found this solution easier than other solutions such as symlinks, rsync, ansible and so on. If you are interested in my own personal dotfiles you can check them out on my <a href="https://github.com/miikanissi/dotfiles">GitHub</a>.</p>]]></summary>
+</entry>
+<entry>
+<title type="text">Pass: The Standard Unix Password Manager</title>
+<link rel="alternate" type="text/html" href="https://miikanissi.com/blog/pass-the-standard-unix-password.html"/>
+<id>https://miikanissi.com/blog/pass-the-standard-unix-password.html</id>
+<published>2021-05-17T10:55:57Z</published>
+<updated>2021-05-17T10:55:57Z</updated>
+<author><name>Miika Nissi</name></author>
+<summary type="html"><![CDATA[<h1>Pass: The Standard Unix Password Manager</h1>
+
+<p>Pass is a simple password manager that strictly follows the <a href="https://en.wikipedia.org/wiki/Unix_philosophy">Unix philosophy</a>. It simply provides a directory structure of GPG encrypted files containing passwords and other information for each password. In this post I will go over how to initialize Pass and different ways of interacting with it.</p>
+
+<h2>Setup</h2>
+
+<p>If you don't have a GPG key we need to generate one with: <code>gpg --full-generate-key</code>. In order to use this key with Pass run the command <code>gpg --list-secret-keys --keyid-format LONG</code>. This will show details of your key. Look for a line that looks something like this:</p>
+
+<pre><code>sec    rsa2048/0D2740AEE2FAEA2B 2021-01-07 [SC]
+</code></pre>
+
+<p>We need to copy the string after the line <code>rsa2048/</code> until the date.
+With this we can create our password store by running <code>pass init "0d2740AEE2FAEA2B"</code>.</p>
+
+<p>Now we have created our password store and can start adding passwords to it by doing <code>pass insert &lt;CATEGORY&gt;/&lt;SUBCATEGORY&gt;/&lt;NAME&gt;</code>. For example to add an entry for an email address we would enter <code>pass insert email/gmail/miika@gmail.com</code>. This will prompt us to enter a password and the contents will be saved into a GPG protected file with our key. The location of this file will be in <code>~/.password-store/email/gmail/miika@gmail.com</code>.</p>
+
+<p>In order to decrypt this file and get its content we can run <code>pass email/gmail/miika@gmail.com</code>. This will echo the output in the terminal.</p>
+
+<p>Now we have a GPG encrypted file that contains your password. To add other information to this file such as a username and URI we can run <code>pass edit email/gmail/miika@gmail.com</code>. Since this is just a GPG encrypted file you are free to edit it to your liking, but the preferred organizational scheme used by the author of Pass looks like this:</p>
+
+<pre><code>Yw|ZSNH!}z"6{ym9pI
+URL: *.amazon.com/*
+Username: AmazonianChicken@example.com
+Secret Question 1: What is your childhood best friend's most bizarre superhero fantasy? Oh god, Amazon, it's too awful to say...
+Phone Support PIN #: 84719
+</code></pre>
+
+<h2>Pass-OTP</h2>
+
+<p>Pass-otp is an extension for pass that allows for two factor authentication support. To add an OTP secret to our account we can run <code>pass otp append -a -s email/gmail/miika@gmail.com</code>.</p>
+
+<p>You can also get the OTP secret from a QR code by running <code>zbarimg -q --raw qrcode.png | pass otp insert totp-secret</code>.</p>
+
+<h2>Frontends to Pass</h2>
+
+<p>To interact with pass outside of the terminal there are a couple helpful extensions. Since I use dmenu there is a dmenu script that comes with Pass. You can run it with <code>passmenu</code> as long as you have dmenu installed.</p>
+
+<p>There is also an Emacs package called <code>password-store</code> which allows you to copy passwords to your kill-ring from Emacs. I use both of these frontends depending on my workflow.</p>
+
+<h2>Afterword</h2>
+
+<p>To learn more about Pass you can check the official website at <a href="https://www.passwordstore.org/"></a>. They also have a list of other extensions and conversion tools to migrate from other password managers.</p>]]></summary>
+</entry>
+<entry>
+<title type="text">Website with Emacs</title>
+<link rel="alternate" type="text/html" href="https://miikanissi.com/blog/website-with-emacs.html"/>
+<id>https://miikanissi.com/blog/website-with-emacs.html</id>
+<published>2021-05-17T10:37:55Z</published>
+<updated>2021-05-17T10:40:04Z</updated>
+<author><name>Miika Nissi</name></author>
+<summary type="html"><![CDATA[<h1>Website with Emacs</h1>
+
+<p><strong>NOTE</strong>: I am no longer using this setup for my website instead check out <a href="https://github.com/miikanissi/mblog">mblog</a>.</p>
+
+<p>In this post I will briefly go over my setup of using <a href="https://orgmode.org/">Emacs Org-mode</a> for managing and publishing my blog website.</p>
+
+<h2>Workflow</h2>
+
+<p>I write all of my posts and static sites in Org-mode within Emacs and when I want to update my site I run a custom publishing function which exports Org-mode files into html. My custom function also creates a sitemap for my blog posts and an RSS feed.</p>
+
+<h2>Setup</h2>
+
+<p>My setup is in my Emacs configuration file which you can find in its entirety from my <a href="https://github.com/miikanissi/dotfiles/tree/master/.emacs.d/">GitHub</a>.</p>
+
+<h3>File structure</h3>
+
+<pre><code>root
+├── org
+│   ├── about.org
+│   ├── blog
+│   │   └── post1.org
+│   ├── css
+│   │   └── site.css
+│   ├── html
+│   │   ├── html_head.html
+│   │   ├── html_postamble.html
+│   │   └── html_preamble.html
+│   ├── img
+│   │   ├── favicon.ico
+│   │   └── miika.jpg
+│   ├── index.org
+│   ├── rss.org
+│   └── sitemap.org
+└── www
+    ├── about.html
+    ├── blog
+    │   └── post1.html
+    ├── css
+    │   └── site.css
+    ├── img
+    │   ├── favicon.ico
+    │   └── miika.jpg
+    ├── index.html
+    ├── rss.xml
+    └── sitemap.html
+
+9 directories, 19 files
+</code></pre>
+
+<h2>Sitemap / Blog Index</h2>
+
+<p>These functions are used to format a sitemap to have a date for each entry.</p>
+
+<pre><code>(defun m/org-publish-org-sitemap (title list)
+  "Sitemap generation function."
+  (concat "#+TITLE: Sitemap\n\n"
+          (org-list-to-subtree list)))
+
+(defun m/org-publish-org-sitemap-format-entry (entry style project)
+  (cond ((not (directory-name-p entry))
+         (let* ((date (org-publish-find-date entry project)))
+           (format "%s - [[file:%s][%s]]"
+                   (format-time-string "%F" date) entry
+                   (org-publish-find-title entry project))))
+        ((eq style 'tree)
+        ;; Return only last subdir.
+        (file-name-nondirectory (directory-file-name entry)))
+        (t entry)))
+</code></pre>
+
+<h2>RSS feed</h2>
+
+<p>RSS-feed generation is done with the ox-rss package, but it requires some additional customization for my needs.</p>
+
+<pre><code>(defun m/org-rss-publish-to-rss (plist filename pub-dir)
+  "Publish RSS with PLIST, only when FILENAME is 'rss.org'.
+  PUB-DIR is when the output will be placed."
+  (if (equal "rss.org" (file-name-nondirectory filename))
+      (org-rss-publish-to-rss plist filename pub-dir)))
+
+(defun m/format-rss-feed (title list)
+  "Generate RSS feed, as a string.
+  TITLE is the title of the RSS feed.  LIST is an internal
+  representation for the files to include, as returned by
+  `org-list-to-lisp'.  PROJECT is the current project."
+  (concat "#+TITLE: " title "\n\n"
+          (org-list-to-subtree list 1 '(:icount "" :istart ""))))
+
+(defun m/format-rss-feed-entry (entry style project)
+  "Format ENTRY for the RSS feed.
+  ENTRY is a file name.  STYLE is either 'list' or 'tree'.
+  PROJECT is the current project."
+  (cond ((not (directory-name-p entry))
+        (let* ((file (org-publish--expand-file-name entry project))
+                (title (org-publish-find-title entry project))
+                (date (format-time-string "%Y-%m-%d" (org-publish-find-date entry project)))
+                (link (concat (file-name-sans-extension entry) ".html")))
+          (with-temp-buffer
+            (insert (format "* %s\n" title))
+            (org-set-property "RSS_PERMALINK" link)
+            (org-set-property "PUBDATE" date)
+            (insert-file-contents file)
+            (buffer-string))))
+        ((eq style 'tree)
+        ;; Return only last subdir.
+        (file-name-nondirectory (directory-file-name entry)))
+        (t entry)))
+</code></pre>
+
+<h2>Project spec for org-publish</h2>
+
+<p>This spec defines the directory structure and exporting options for org-publish</p>
+
+<pre><code>(defun m/get-publish-project-spec ()
+  "Return project settings for use with `org-publish-project-alist'."
+  (let* ((website-root (file-name-as-directory
+                        "~/miikanissi.com"))
+         (website-org (file-name-as-directory
+                       (concat website-root "org")))
+         (website-www (file-name-as-directory
+                       (concat website-root "www")))
+         (website-org-img (file-name-as-directory
+                           (concat website-org "img")))
+         (website-www-img (file-name-as-directory
+                           (concat website-www "img")))
+         (website-org-css (file-name-as-directory
+                           (concat website-org "css")))
+         (website-www-css (file-name-as-directory
+                           (concat website-www "css")))
+         (website-org-html (file-name-as-directory
+                            (concat website-org "html")))
+         (website-org-blog (file-name-as-directory
+                            (concat website-org "blog")))
+         (get-content (lambda (x)
+                        (with-temp-buffer
+                          (insert-file-contents (concat website-org-html
+                                                        x))
+                          (buffer-string))))
+         (website-html-head (funcall get-content "html_head.html"))
+         (website-html-preamble (funcall get-content "html_preamble.html"))
+         (website-html-postamble (funcall get-content "html_postamble.html")))
+    `(("org"
+       :base-directory ,website-org
+       :base-extension "org"
+       :recursive t
+       :exclude "rss\\.org\\|sitemap\\.org"
+       :publishing-directory ,website-www
+       :publishing-function org-html-publish-to-html
+       :author "Miika Nissi"
+       :email "miika@miikanissi.com"
+       :with-title t
+       :section-numbers nil
+       :headline-levels 4
+       :language en
+       :with-toc nil
+       :with-date t
+       :with-email t
+       :with-statistics-cookies nil
+       :with-todo-keywords nil
+       :auto-sitemap t
+       :sitemap-sort-files anti-chronologically
+       :sitemap-format-entry m/org-publish-org-sitemap-format-entry
+       :html-head-include-default-style nil
+       :html-head-include-scripts nil
+       :htmlized-source t
+       :html-doctype "html5"
+       :html-html5-fancy t
+       :html-head ,website-html-head
+       :html-preamble ,website-html-preamble
+       :html-postamble ,website-html-postamble)
+      ("images"
+       :base-directory ,website-org-img
+       :base-extension "png\\|jpg\\|gif\\|svg\\|ico"
+       :recursive t
+       :publishing-directory ,website-www-img
+       :publishing-function org-publish-attachment)
+      ("css"
+       :base-directory ,website-org-css
+       :base-extension "css"
+       :publishing-directory ,website-www-css
+       :publishing-function org-publish-attachment)
+      ("rss"
+       :base-directory ,website-org
+       :base-extension "org"
+       :exclude "rss\\.org\\|index\\.org\\|about\\.org\\|sitemap\\.org"
+       :recursive t
+       :publishing-directory ,website-www
+       :publishing-function m/org-rss-publish-to-rss
+       :title "Miika's Blog"
+       :description "This feed contains blog posts from Miika Nissi. Topics ranging from lifestyle to technology."
+       :author "Miika Nissi"
+       :html-link-use-abs-url t
+       :html-link-home "https://miikanissi.com/"
+       :with-broken-link t
+       :section-numbers nil
+       :with-toc nil
+       :with-date t
+       :with-author t
+       :with-description t
+       :auto-sitemap t
+       :sitemap-filename "rss.org"
+       :sitemap-title "Miika's blog"
+       :sitemap-style list
+       :sitemap-sort-files anti-chronologically
+       :sitemap-function m/format-rss-feed
+       :sitemap-format-entry m/format-rss-feed-entry)
+      ("miikanissi.com" :components ("org" "images" "css" "rss")))))
+</code></pre>
+
+<h2>Project publishing function</h2>
+
+<p>The website is updated when calling <code>m/publish-website</code>, which only publishes newly modified files. When used with additional arguments, a full update can be forced: <code>(m/publish-website "miikanissi.com" t)</code>.</p>
+
+<pre><code>(defun m/publish-website (&amp;optional project force)
+  "Publish personal website."
+  (interactive)
+  (unless project (setq project "miikanissi.com"))
+  (let ((org-publish-project-alist (m/get-publish-project-spec))
+        (org-export-date-timestamp-format "%Y-%m-%d")
+        (org-todo-keywords '((sequence "TODO" "REVIEW" "|"
+                                       "DONE" "DEFERRED" "ABANDONED"))))
+    (org-publish-project project force)))
+</code></pre>
+
+<h2>Afterword</h2>
+
+<p>My setup is constantly changing but for now I'm happy with the setup I've built. For the latest updates you can check my <a href="https://github.com/miikanissi/dotfiles/tree/master/.emacs.d/">GitHub</a>.</p>]]></summary>
+</entry>
+</feed>

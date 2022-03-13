@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Suckless dwm, dmenu and st</title>
+    <meta name="author" content="Miika Nissi" />
+    <meta name="description" content="" />
+    <meta
+      name="keywords"
+      content="Miika Nissi, blog, resume, technology, programming"
+    />
+    <link rel="icon" href="../media/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" type="image/x-icon" href="../media/favicon.ico" />
+    <link rel="canonical" href="https://miikanissi.com/" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta property="og:image" content="../media/favicon.ico" />
+    <meta property="og:url" content="https://miikanissi.com/" />
+    <meta property="og:site_name" content="Miika Nissi" />
+    <link rel="stylesheet" href="../css/style.css" type="text/css" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      href="https://miikanissi.com/rss.xml"
+      title="Miika Nissi's Blog"
+    />
+    <link
+      rel="alternate"
+      type="application/atom+xml"
+      href="https://miikanissi.com/atom.xml"
+      title="Miika Nissi's Blog"
+    />
+  </head>
+  <body>
+    <header>
+      <h1 class="main-title">Miika Nissi <em>(https://miikanissi.com/)</em></h1>
+      <hr />
+      <nav>
+        <ul>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="https://github.com/miikanissi">GitHub</a></li>
+          <li><a href="https://miikanissi.com/rss.xml">RSS</a></li>
+          <li><a href="https://miikanissi.com/atom.xml">Atom</a></li>
+        </ul>
+      </nav>
+    </header>
+<main>
+<h1>Suckless dwm, dmenu and st</h1>
+
+<p>I've been a fan of minimalist software for quite a while now and I'm alwasy looking for more simple and reliable technology. Suckless is a community of programmers who have made some great pieces of minimalist software that I recently started using. In this post I want to showcase my setup and some thoughts.</p>
+
+<h2>dwm - a dynamic window manager</h2>
+
+<p><a href="https://dwm.suckless.org/">dwm</a>, like all of suckless software, has no configuration files or options. Everything is hard-coded into the source code. To customize dwm, you need to modify the source code and compile it yourself. There are no binary releases at all.</p>
+
+<p>This process of modifying the source code might be intimidating but due to the community around suckless software there are countless of patches available for different needs. Here is a list of patches I'm currently using for dwm:</p>
+
+<ul>
+<li><a href="https://dwm.suckless.org/patches/actualfullscreen/">actualfullscreen</a>, allows toggling a window as fullscreen.</li>
+<li><a href="https://dwm.suckless.org/patches/alwayscenter/">alwayscenter</a>, all floating windows are centered on spawn.</li>
+<li><a href="https://dwm.suckless.org/patches/attachbottom/">attachbottom</a>, new windows are attached to the bottom of the stack instead of top.</li>
+<li><a href="https://dwm.suckless.org/patches/autostart/">autostart</a>, run a custom bash script on dwm startup.</li>
+<li><a href="https://dwm.suckless.org/patches/colorbar/">colorbar</a>, ability to change the colors of the bar for every element.</li>
+<li><a href="https://dwm.suckless.org/patches/hide_vacant_tags/">hide vacant tags</a>, hides all the tags not in use from the bar.</li>
+<li><a href="https://dwm.suckless.org/patches/pertag/">pertag</a>, allows each tag to have a different layout.</li>
+<li><a href="https://dwm.suckless.org/patches/stacker/">stacker</a>, move windows up/down the stack.</li>
+<li><a href="https://dwm.suckless.org/patches/staticstatus/">staticstatus</a>, statusbar only on one monitor.</li>
+<li><a href="https://dwm.suckless.org/patches/statuscmd/">statuscmd</a>, ability to have clickable statusbar items.</li>
+<li><a href="https://dwm.suckless.org/patches/vanitygaps/">vanitygaps</a>, adds gaps between windows.</li>
+<li><a href="https://github.com/miikanissi/dotfiles/blob/master/.local/src/suckless/dwm/patches/dwm-xrdb-6.2.diff">xrdb</a>, reads colors from <code>~/.Xresources</code> at run time.</li>
+</ul>
+
+<p>As you can see, I have quite a list of extra patches applied to dwm, increasing the lines of code from around 2000 to 2700. I see many of these patches as almost necessary, such as the fullscreen patch or the stacker patch.</p>
+
+<h3>dwmblocks - status bar for dwm</h3>
+
+<p><a href="https://github.com/torrinfail/dwmblocks">dwmblocks</a> is a modular status bar for dwm. It is not made by suckless but it follows the same spirit of suckless software by being source based and only 200 lines of code.</p>
+
+<p>"Blocks" are shell scripts that output some information. You can then define how often or what signal is needed to run the script. For example I have this script for my clock that runs every 30 seconds outputting the date and time. Clicking the clock opens a terminal with <code>calcurse</code>.</p>
+
+<pre><code>#!/bin/sh
+
+case $BUTTON in
+        1) setsid -f $TERMINAL -e calcurse ;;
+esac
+date "+ %Y %b %d (%a), %-I:%M%p"
+</code></pre>
+
+<h2>dmenu - dynamic menu</h2>
+
+<p><a href="https://tools.suckless.org/dmenu/">dmenu</a> is a dynamic menu which allows you to create different prompts. By default dmenu has a basic run prompt to launch applications.</p>
+
+<p>I have also made a few scripts utilizing dmenu such as <a href="https://github.com/miikanissi/dotfiles/blob/master/.local/bin/dman.sh">dman</a>, which allows you to mount/unmount devices, and <a href="https://github.com/miikanissi/dotfiles/blob/master/.local/bin/killprocess.sh">killprocess</a>, which allows you to easily kill unresponsive programs.</p>
+
+<p>Another useful dmenu script I found is <a href="https://github.com/miikanissi/dotfiles/blob/master/.local/bin/passmenu.sh">passmenu</a>. Passmenu allows you to get your passwords from Pass (The Standard UNIX Password Manager). I have made a seperate blog post about Pass <a href="https://miikanissi.com/blog/pass-the-standard-unix-password.html">here</a>.</p>
+
+<p>I also have applied a couple of dmenu patches:</p>
+
+<ul>
+<li><a href="https://tools.suckless.org/dmenu/patches/xresources-alt/">xresources-alt</a>, reads colors from <code>~/.Xresources</code>.</li>
+<li><a href="https://tools.suckless.org/dmenu/patches/password/">password</a>, allows dmenu to hide keyboard input as dots with the option <code>-P</code>.</li>
+</ul>
+
+<h2>st - simple terminal</h2>
+
+<p>You'd think finding a good terminal emulator that is fast and simple would be easy. I have tried xterm, urxvt, alacritty, kitty and so on, but they either lack basic features or are too slow and complicated for no reason. However <a href="https://st.suckless.org/">st</a> is a simple terminal emulator for X that works great with a few extra patches.</p>
+
+<p>The patches I have applied are:</p>
+
+<ul>
+<li><a href="https://st.suckless.org/patches/bold-is-not-bright/">bold is not bright</a>, renders bold font with same color as regular font.</li>
+<li><a href="https://st.suckless.org/patches/scrollback/">scrollback</a>, allows scrolling back and forth on the terminal.</li>
+<li><a href="https://st.suckless.org/patches/xresources/">xresources</a>, reads colors and other options from <code>~/.Xresources</code>.</li>
+</ul>
+
+<h2>Afterword</h2>
+
+<p>At first I was hesitant to use suckless software because it is source based which made it seem intimidating. But the initial learning curve was worth it. Now I have my own custom builds of these programs and everything works great. I will keep this post updated if I face any problems or I make further changes. So far I'm more than pleased.</p>
+</main>
+<footer>
+  <hr>
+    Posted on: , last updated on: <br>
+    By Miika Nissi (<a href="mailto:miika@miikanissi.com">miika@miikanissi.com</a>).<br>
+    Built with <a href="https://github.com/miikanissi/mblog/">mblog</a>.
+    <br>
+    <img src="../media/xmr.svg" alt="XMR Logo">
+    Monero Tip Jar(<a href="./media/monero.png" title style>QR code</a>):
+    <p class="donation">483ax3yva2Ub23ZEsAJV93hQvZvkkyMHScF7H7zd9C9FaVq3Hnxw7fMVvNwLbV6sqdbGGo2GuHYofQrV2xgK7eNpTrM4YKm</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bachelor's Thesis</title>
+    <meta name="author" content="Miika Nissi" />
+    <meta name="description" content="" />
+    <meta
+      name="keywords"
+      content="Miika Nissi, blog, resume, technology, programming"
+    />
+    <link rel="icon" href="../media/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" type="image/x-icon" href="../media/favicon.ico" />
+    <link rel="canonical" href="https://miikanissi.com/" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta property="og:image" content="../media/favicon.ico" />
+    <meta property="og:url" content="https://miikanissi.com/" />
+    <meta property="og:site_name" content="Miika Nissi" />
+    <link rel="stylesheet" href="../css/style.css" type="text/css" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      href="https://miikanissi.com/rss.xml"
+      title="Miika Nissi's Blog"
+    />
+    <link
+      rel="alternate"
+      type="application/atom+xml"
+      href="https://miikanissi.com/atom.xml"
+      title="Miika Nissi's Blog"
+    />
+  </head>
+  <body>
+    <header>
+      <h1 class="main-title">Miika Nissi <em>(https://miikanissi.com/)</em></h1>
+      <hr />
+      <nav>
+        <ul>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="https://github.com/miikanissi">GitHub</a></li>
+          <li><a href="https://miikanissi.com/rss.xml">RSS</a></li>
+          <li><a href="https://miikanissi.com/atom.xml">Atom</a></li>
+        </ul>
+      </nav>
+    </header>
+<main>
+<h1>Bachelor's Thesis</h1>
+
+<p>For the past year I have been working for a company that specializes in open source business management software, especially <a href="https://www.odoo.com/">Odoo - Open Source ERP and CRM</a>. In spring 2021 I was tasked to research Odoo's (version 14) abilities as an Event Management System for a customer and what improvements needed to be made. I found three important features that were missing and together with my employer and the customer we decided that I could use the development of these features as my Bachelor's thesis.</p>
+
+<h2>The missing features and development</h2>
+
+<h3>1. Canceling registrations</h3>
+
+<p>In the core version of Odoo 14, registrants do not have the ability to cancel their own registrations - only the event manager could cancel them. This is a big inconvenience as registrants would need to contact the event manager manually in case of a cancellation. My solution was to create a portal view for the registrants to manage the state of their registrations. This portal could be accessed through a unique URL sent with the registration confirmation email.</p>
+
+<p>Additionally, the event manager could define how long before the event begins the cancellations are possible. For example, the event manager could choose to close cancellations when there is less than 24 hours until the event begins.</p>
+
+<h3>2. Waiting list</h3>
+
+<p>It is common for an event management system to have a waiting list if an event is fully booked. However, Odoo 14 does not have this feature. My solution was to make a user-friendly way to sign up for a waiting list with an email notification if the event had more seats available.</p>
+
+<p>The process of joining a waiting list followed the same process as registrations with the difference that the registrant was not required to make a payment. If the event got more seats available the waiting list, members would receive an email to confirm their seat in a first-come first-serve basis. For a paid event this confirmation included making a payment through the system.</p>
+
+<h3>3. Questions</h3>
+
+<p>Odoo 14 has the ability to ask registrants custom questions in the registration form. These questions could either be free text questions or drop down selections, but our customer had a need for more complex registration forms. My solution was to integrate Odoo's event management with an existing Odoo survey feature. This survey allows a more customizable way of creating complex forms and with this integration we saved time and future maintenance cost by not creating a fully custom form creation system and instead used a pre-existing feature.</p>
+
+<h2>Finishing touches</h2>
+
+<p>I wrote my thesis based on the project after the development process. The thesis is now published and can be viewed from a permanent address at <a href="https://urn.fi/URN:NBN:fi:amk-2021111220157">https://urn.fi/URN:NBN:fi:amk-2021111220157</a>.</p>
+</main>
+<footer>
+  <hr>
+    Posted on: , last updated on: <br>
+    By Miika Nissi (<a href="mailto:miika@miikanissi.com">miika@miikanissi.com</a>).<br>
+    Built with <a href="https://github.com/miikanissi/mblog/">mblog</a>.
+    <br>
+    <img src="../media/xmr.svg" alt="XMR Logo">
+    Monero Tip Jar(<a href="./media/monero.png" title style>QR code</a>):
+    <p class="donation">483ax3yva2Ub23ZEsAJV93hQvZvkkyMHScF7H7zd9C9FaVq3Hnxw7fMVvNwLbV6sqdbGGo2GuHYofQrV2xgK7eNpTrM4YKm</p>
+</footer>
+</body>
+</html>

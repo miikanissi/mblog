@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>index.html</loc><lastmod>2021-05-16T23:16:30Z</lastmod></url>
+<url><loc>about.html</loc><lastmod>2021-05-17T10:37:55Z</lastmod></url>
+<url><loc>blog/bachelors-thesis.html</loc><lastmod>2021-11-21T14:40:12Z</lastmod></url>
+<url><loc>blog/configure-eslint-prettier-ale-vim.html</loc><lastmod>2021-06-16T19:29:21Z</lastmod></url>
+<url><loc>blog/email-setup-with-mbsync-mu4e.html</loc><lastmod>2021-05-17T11:23:53Z</lastmod></url>
+<url><loc>blog/git-guide-for-dummies.html</loc><lastmod>2021-05-17T11:36:18Z</lastmod></url>
+<url><loc>blog/managing-dotfiles-with-git.html</loc><lastmod>2021-05-17T11:14:25Z</lastmod></url>
+<url><loc>blog/pass-the-standard-unix-password.html</loc><lastmod>2021-05-17T10:55:57Z</lastmod></url>
+<url><loc>blog/qtile-window-manager.html</loc><lastmod>2021-11-30T17:26:07Z</lastmod></url>
+<url><loc>blog/suckless-dwm-dmenu-st.html</loc><lastmod>2021-06-28T23:33:00Z</lastmod></url>
+<url><loc>blog/website-with-emacs.html</loc><lastmod>2021-05-17T10:40:04Z</lastmod></url>
+</urlset>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Configuring ESLint and Prettier for Vim with ALE</title>
+    <meta name="author" content="Miika Nissi" />
+    <meta name="description" content="" />
+    <meta
+      name="keywords"
+      content="Miika Nissi, blog, resume, technology, programming"
+    />
+    <link rel="icon" href="../media/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" type="image/x-icon" href="../media/favicon.ico" />
+    <link rel="canonical" href="https://miikanissi.com/" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta property="og:image" content="../media/favicon.ico" />
+    <meta property="og:url" content="https://miikanissi.com/" />
+    <meta property="og:site_name" content="Miika Nissi" />
+    <link rel="stylesheet" href="../css/style.css" type="text/css" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      href="https://miikanissi.com/rss.xml"
+      title="Miika Nissi's Blog"
+    />
+    <link
+      rel="alternate"
+      type="application/atom+xml"
+      href="https://miikanissi.com/atom.xml"
+      title="Miika Nissi's Blog"
+    />
+  </head>
+  <body>
+    <header>
+      <h1 class="main-title">Miika Nissi <em>(https://miikanissi.com/)</em></h1>
+      <hr />
+      <nav>
+        <ul>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="https://github.com/miikanissi">GitHub</a></li>
+          <li><a href="https://miikanissi.com/rss.xml">RSS</a></li>
+          <li><a href="https://miikanissi.com/atom.xml">Atom</a></li>
+        </ul>
+      </nav>
+    </header>
+<main>
+<h1>Configuring ESLint and Prettier for Vim with ALE</h1>
+
+<p>Recently, I wanted to setup Vim with ESLint and Prettier for JavaScript development and it took me a surprisingly long time to find the best solution. In this post, I'm going to go over the steps needed to get your JavaScript linting and automatic fixing working inside of Vim.</p>
+
+<h2>Asynchronous Lint Engine (ALE) for Vim</h2>
+
+<p>First, we are going to need a Vim plugin to help us integrate ESLint and Prettier into Vim. <a href="https://github.com/dense-analysis/ale">Asynchronous Lint Engine(ALE)</a> is a Vim/NeoVim plugin providing on-the-fly syntax checking and automatic file formatting. It integrates with various linters and is easy to customize.</p>
+
+<p>I'm not going to go into depth on all the different ways of installing VIM plugins. For the sake of this post, we're going to use <a href="https://github.com/junegunn/vim-plug">vim-plug</a> as our plugin manager. I will assume you already have it installed according to the installation instructions.</p>
+
+<p>In your <code>vimrc</code> add:</p>
+
+<pre><code>call plug#begin('$HOME/.vim/plugged')
+Plug 'dense-analysis/ale'
+call plug#end()
+</code></pre>
+
+<p>Running <code>:PlugInstall</code> in Vim will install ALE for us and we can move on.</p>
+
+<h2>ESLint &amp; Prettier from NPM</h2>
+
+<p>Generally, I like to install all of my programs from the official repository of my Linux distribution or build them from source. In this case, we need to use <code>npm</code> to install <a href="https://github.com/prettier/prettier-eslint">prettier-eslint</a>. Prettier-eslint combines <a href="https://prettier.io/">Prettier</a> and <a href="https://eslint.org/">ESLint</a> to format a JavaScript file.</p>
+
+<p>Prettier is an opinionated code formatter (sometimes too opinionated) and you might need to follow a specific guideline provided by ESLint. Prettier-eslint first runs Prettier on a JavaScript file. After formatting, it hands the process over to ESLint, which can apply some specific changes based on <a href="https://eslint.org/docs/rules/">ESLint rules</a>. ESLint rules are specified in a configuration file located in <code>~/.eslintrc*</code>.</p>
+
+<p>To install <code>prettier-eslint</code> we need <code>npm</code>. Then we can run:</p>
+
+<pre><code>npm install -D --save-dev prettier-eslint-cli
+</code></pre>
+
+<h2>Vim configuration for ALE and prettier-eslint</h2>
+
+<p>Most of the heavy lifting is automatically done by <code>prettier-eslint</code> so our VIM configuration is pretty simple. To have ALE use <code>prettier-eslint</code>, we need to define it as a "fixer" in our <code>vimrc</code>:</p>
+
+<pre><code>let g:ale_fixers = {
+      \   'javascript': ['eslint'],
+      \}
+</code></pre>
+
+<p>Now we can run <code>:ALEFix</code> in our JavaScript files to format and fix our code.</p>
+
+<p>We should also define ESLint as our linter for JavaScript files. This means we will see error messages on-the-fly as we work on our code.</p>
+
+<pre><code>let g:ale_linters = {
+      \   'javascript': ['eslint'],
+      \}
+</code></pre>
+
+<p>Personally, I like to have a few other configuration options for ALE. These include fixing and formatting code on save, remove code highlighting on errors, and show error and warning sings in the Vim sign column (on the left).</p>
+
+<pre><code>let g:ale_fix_on_save = 1
+let g:ale_sign_error = '&gt;&gt;'
+let g:ale_sign_warning = '--'
+let g:ale_echo_msg_error_str = 'E'
+let g:ale_echo_msg_warning_str = 'W'
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+let g:ale_python_flake8_options = '--max-line-length 88 --extend-ignore=E203'
+</code></pre>
+
+<h2>Afterword</h2>
+
+<p>I felt the need to write this post as most solutions I could find on search engines were outdated or unnecessarily complicated.</p>
+
+<p>Notice a mistake in this post or need help setting up your JavaScript environment in Vim? Feel free to contact me via email at <code>miika@miikanissi.com</code>.</p>
+</main>
+<footer>
+  <hr>
+    Posted on: , last updated on: <br>
+    By Miika Nissi (<a href="mailto:miika@miikanissi.com">miika@miikanissi.com</a>).<br>
+    Built with <a href="https://github.com/miikanissi/mblog/">mblog</a>.
+    <br>
+    <img src="../media/xmr.svg" alt="XMR Logo">
+    Monero Tip Jar(<a href="./media/monero.png" title style>QR code</a>):
+    <p class="donation">483ax3yva2Ub23ZEsAJV93hQvZvkkyMHScF7H7zd9C9FaVq3Hnxw7fMVvNwLbV6sqdbGGo2GuHYofQrV2xgK7eNpTrM4YKm</p>
+</footer>
+</body>
+</html>

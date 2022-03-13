@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Email setup with mbsync + mu4e</title>
+    <meta name="author" content="Miika Nissi" />
+    <meta name="description" content="" />
+    <meta
+      name="keywords"
+      content="Miika Nissi, blog, resume, technology, programming"
+    />
+    <link rel="icon" href="../media/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" type="image/x-icon" href="../media/favicon.ico" />
+    <link rel="canonical" href="https://miikanissi.com/" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta property="og:image" content="../media/favicon.ico" />
+    <meta property="og:url" content="https://miikanissi.com/" />
+    <meta property="og:site_name" content="Miika Nissi" />
+    <link rel="stylesheet" href="../css/style.css" type="text/css" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      href="https://miikanissi.com/rss.xml"
+      title="Miika Nissi's Blog"
+    />
+    <link
+      rel="alternate"
+      type="application/atom+xml"
+      href="https://miikanissi.com/atom.xml"
+      title="Miika Nissi's Blog"
+    />
+  </head>
+  <body>
+    <header>
+      <h1 class="main-title">Miika Nissi <em>(https://miikanissi.com/)</em></h1>
+      <hr />
+      <nav>
+        <ul>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="https://github.com/miikanissi">GitHub</a></li>
+          <li><a href="https://miikanissi.com/rss.xml">RSS</a></li>
+          <li><a href="https://miikanissi.com/atom.xml">Atom</a></li>
+        </ul>
+      </nav>
+    </header>
+<main>
+<h1>Email setup with mbsync + mu4e</h1>
+
+<p>Mu4e is a powerful email client for Emacs. It is rather simple to use and having your mail in Emacs is the best thing ever. I recently started using mu4e as my email client and it turns out configuring it is a bit of a hassle. This post works as a tutorial on setting up mu4e email client for Emacs with mbsync to sync email.</p>
+
+<h2>Pass to securely store your passwords</h2>
+
+<p>To be able to store your email password securely you need to setup gpg and pass. I have previously made a post on <a href="https://miikanissi.com/blog/pass-the-standard-unix-password-manager.html">configuring pass</a> so take a look at it before you proceed.</p>
+
+<p>Every time you want to add a new email make sure you add a pass entry for it first.</p>
+
+<h2>Setting up mbsync</h2>
+
+<p>To fetch and sync email from the mail server using imap, you need to use <a href="https://wiki.archlinux.org/index.php/isync">isync/mbsync</a>. First you need to install this on your system with your package manager.</p>
+
+<p>For Arch Linux:</p>
+
+<pre><code>sudo pacman -S isync
+</code></pre>
+
+<p>For Ubuntu 20.04:</p>
+
+<pre><code>sudo apt install isync
+</code></pre>
+
+<p>Mbsync configuration file is located at <code>~/.mbsyncrc</code>. A typical configuration looks as follows (replace the content between &lt;,> with values provided by your email provider):</p>
+
+<pre><code>IMAPAccount &lt;account&gt;
+Host &lt;imap.host.tld&gt;
+Port &lt;993&gt;
+User &lt;email username&gt;
+PassCmd "pass &lt;account&gt;"
+SSLType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore &lt;account&gt;-remote
+Account &lt;account&gt;
+
+MaildirStore &lt;account&gt;-local
+SubFolders Verbatim
+Path ~/Mail/&lt;account&gt;/
+Inbox ~/Mail/&lt;account&gt;/Inbox
+Trash ~/Mail/&lt;account&gt;/Trash
+
+Channel &lt;account&gt;
+Far :&lt;account&gt;-remote:
+Near :&lt;account&gt;-local:
+;; Patterns are the names of your mail folders. You can also use * for all of your mail folders.
+Patterns INBOX "Sent Items" Drafts Trash Spam?
+SyncState *
+Create Both
+Expunge Both
+CopyArrivalDate yes
+Sync All
+</code></pre>
+
+<p><strong>Note</strong>: If you have 2FA enabled you might need to use an app specific password. Confirm this from your email provider.</p>
+
+<p><strong>Note2</strong>: See <a href="https://wiki.archlinux.org/index.php/isync">ArchWiki article about isync</a> for more configuration options and tips.</p>
+
+<p>Make sure to create the root folder used in the mbsync configuration:</p>
+
+<pre><code>mkdir -p ~/Mail/&lt;account&gt;
+</code></pre>
+
+<p>If everything was configured correctly you can now sync your email to your local folder:</p>
+
+<pre><code>mbsybc &lt;account&gt;
+</code></pre>
+
+<h2>Mu4e</h2>
+
+<p>Mu4e, the Emacs mail client, comes included with the mu, mail indexing program. You can get mu directly from their <a href="https://github.com/djcb/mu">GitHub page</a> or various package managers.</p>
+
+<p>For Arch Linux with AUR helper yay:</p>
+
+<pre><code>yay -S mu
+</code></pre>
+
+<p>For Ubuntu 20.04:</p>
+
+<pre><code>sudo apt install maildir-utils
+</code></pre>
+
+<p>Mu4e configuration for Emacs (replace content between &lt;,> with your own values):</p>
+
+<pre><code>(use-package mu4e
+  :ensure nil
+  :defer 5
+  :load-path "/usr/share/emacs/site-lisp/mue4/"
+  :config
+  (require 'org-mu4e)
+
+  ;; refresh mbsync every 10 minutes
+  (setq mu4e-update-interval (* 10 60))
+  (setq mu4e-get-mail-command "mbsync -a")
+  (setq mu4e-maildir "&lt;maildir&gt;")
+  ;; use pass to store passwords
+  ;; file auth looks for is ~/.password-store/&lt;smtp.host.tld&gt;:&lt;port&gt;/&lt;name&gt;
+  (auth-source-pass-enable)
+  (setq auth-sources '(password-store))
+  (setq auth-source-debug t)
+  (setq auth-source-do-cache nil)
+  ;; no reply to self
+  (setq mu4e-compose-dont-reply-to-self t)
+  (setq mu4e-compose-keep-self-cc nil)
+  ;; moving messages renames files to avoid errors
+  (setq mu4e-change-filenames-when-moving t)
+  ;; Configure the function to use for sending mail
+  (setq message-send-mail-function 'smtpmail-send-it)
+  ;; Display options
+  (setq mu4e-view-show-images t)
+  (setq mu4e-view-show-addresses 't)
+  ;; Composing mail
+  (setq mu4e-compose-dont-reply-to-self t)
+  ;; don't keep message buffers around
+  (setq message-kill-buffer-on-exit t)
+  ;; Don't ask for a 'context' upon opening mu4e
+  (setq mu4e-context-policy 'pick-first)
+  ;; Don't ask to quit... why is this the default?
+  (setq mu4e-confirm-quit nil)
+
+  ;; Set up contexts for email accounts
+  (setq mu4e-contexts
+        (list
+         (make-mu4e-context
+          :name "&lt;mail account name&gt;"
+          :match-func
+          (lambda (msg)
+            (when msg
+              (string-prefix-p "/&lt;mail account dir&gt;" (mu4e-message-field msg :maildir))))
+          :vars `((user-mail-address . "&lt;mail address&gt;")
+                  (user-full-name    . "&lt;mail full name&gt;")
+                  (smtpmail-smtp-server  . "&lt;smtp.host.tld&gt;")
+                  (smtpmail-smtp-service . "&lt;smtp port&gt;")
+                  (smtpmail-stream-type  . ssl)
+                  (smtpmail-smtp-user . "&lt;email username&gt;")
+                  (mu4e-compose-signature . "&lt;email signature&gt;")
+                  (mu4e-drafts-folder  . "&lt;mail account dir&gt;/&lt;draft dir&gt;")
+                  (mu4e-sent-folder  . "&lt;mail account dir&gt;/&lt;sent dir&gt;")
+                  (mu4e-refile-folder  . "&lt;mail account dir&gt;/&lt;archive dir&gt;")
+                  (mu4e-trash-folder  . "&lt;mail account dir&gt;/&lt;trash dir&gt;")))))
+
+  (setq m/mu4e-inbox-query
+        "(maildir:/&lt;mail account dir&gt;/&lt;inbox dir&gt;) AND flag:unread")
+  (defun m/go-to-inbox ()
+    (interactive)
+    (mu4e-headers-search m/mu4e-inbox-query))
+  ;; start mu4e
+  (mu4e t))
+</code></pre>
+
+<p><strong>Note</strong>: Mu4e looks for your password file in <code>~/.password-store/&lt;smtp.host.tld&gt;:&lt;port&gt;/&lt;mail account name&gt;</code></p>
+
+<p>This is a rather basic configuration for one email account. For my full configuration you can check my <a href="https://github.com/miikanissi/dotfiles/tree/master/.emacs.d/">dotfiles on GitHub</a>.</p>
+
+<h2>Afterword</h2>
+
+<p>If everything was configured correctly you should now be able to read and send email from Emacs using mu4e. If you need any help with your configuration don't hesitate contacting me with email: <code>miika@miikanissi.com</code>.</p>
+</main>
+<footer>
+  <hr>
+    Posted on: , last updated on: <br>
+    By Miika Nissi (<a href="mailto:miika@miikanissi.com">miika@miikanissi.com</a>).<br>
+    Built with <a href="https://github.com/miikanissi/mblog/">mblog</a>.
+    <br>
+    <img src="../media/xmr.svg" alt="XMR Logo">
+    Monero Tip Jar(<a href="./media/monero.png" title style>QR code</a>):
+    <p class="donation">483ax3yva2Ub23ZEsAJV93hQvZvkkyMHScF7H7zd9C9FaVq3Hnxw7fMVvNwLbV6sqdbGGo2GuHYofQrV2xgK7eNpTrM4YKm</p>
+</footer>
+</body>
+</html>

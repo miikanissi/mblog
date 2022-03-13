@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="$LANG">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>$TITLE</title>
+    <meta name="author" content="$AUTHOR" />
+    <meta name="description" content="$DESCRIPTION" />
+    <meta name="keywords" content="$KEYWORDS" />
+    <link rel="icon" href="$FAVICON" type="image/x-icon" />
+    <link rel="apple-touch-icon" type="image/x-icon" href="$FAVICON" />
+    <link rel="canonical" href="$BASE_URL" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta property="og:image" content="$FAVICON" />
+    <meta property="og:url" content="$BASE_URL" />
+    <meta property="og:site_name" content="$SITE_NAME" />
+    <link rel="stylesheet" href="$STYLESHEET" type="text/css" />
+    <link rel="alternate" type="application/rss+xml" href="$RSS" title="$SITE_NAME" />
+  </head>
+  <body>
+    <header>
+      <h1 class="main-title">$AUTHOR <em>($BASE_URL)</em></h1>
+      <hr />
+      <nav>
+        <ul>
+          <li><a href="$INDEX">Home</a></li>
+          <li><a href="$ABOUT">About</a></li>
+          <li><a href="$GITHUB">GitHub</a></li>
+          <li><a href="$RSS">RSS</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main>$CONTENT</main>
+    <footer>
+      <hr />
+      $POST_DATE By $AUTHOR (<a href="mailto:$AUTHOR_EMAIL">$AUTHOR_EMAIL</a>).
+      <br />
+      Built with <a href="https://github.com/miikanissi/mblog/">mblog</a>.
+    </footer>
+  </body>
+</html>
