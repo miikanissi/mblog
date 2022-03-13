@@ -180,12 +180,12 @@ build/robots.txt:
 
 build/sitemap.xml:
 	printf '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' > $@
-	printf '<url><loc>$(BASE_URL)/index.html</loc><lastmod>%s</lastmod></url>\n' \
+	printf '<url><loc>$(BASE_URL)/</loc><lastmod>%s</lastmod></url>\n' \
 		"`git log -n 1 --date="format:%Y-%m-%dT%H:%M:%SZ" --pretty=format:'%ad' -- "index.md"`"	>> $@
-	printf '<url><loc>$(BASE_URL)/about.html</loc><lastmod>%s</lastmod></url>\n' \
+	printf '<url><loc>$(BASE_URL)/about</loc><lastmod>%s</lastmod></url>\n' \
 		"`git log -n 1 --date="format:%Y-%m-%dT%H:%M:%SZ" --pretty=format:'%ad' -- "about.md"`"	>> $@
 	for f in $(ARTICLES); do \
-		printf "<url><loc>$(BASE_URL)/blog/`basename $$f | sed 's/\.md/\.html/'`</loc><lastmod>%s</lastmod></url>\n" \
+		printf "<url><loc>$(BASE_URL)/blog/`basename $$f | sed 's/\.[^.]*$$//'`</loc><lastmod>%s</lastmod></url>\n" \
 			"`git log -n 1 --date="format:%Y-%m-%dT%H:%M:%SZ" --pretty=format:'%ad' -- "$$f"`"; \
 	done >> $@
 	printf '</urlset>' >> $@
