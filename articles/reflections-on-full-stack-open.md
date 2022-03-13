@@ -20,4 +20,6 @@ I completed the 2021 version of the course in early 2022, which meant some of th
 
 I would recommend the course to anyone with a solid programming background that has little to no experience with React/Node.js and are interested in learning the stack. Overall the course is one of the best free online courses on modern web development.
 
+You can browse my exercise solutions [here](https://github.com/miikanissi/fullstackopen2021).
+
 If you have any questions or want to hear more about my experience with the course you can send me an email at [miika@miikanissi.com](mailto:miika@miikanissi.com).
