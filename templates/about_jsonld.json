@@ -1,0 +1,14 @@
+{
+    "@context": "http://schema.org",
+    "@type": "Person",
+    "name": "$AUTHOR",
+    "url": "$BASE_URL",
+    "jobTitle": "$JOB_TITLE",
+    "alumniOf": "$ALUMNI",
+    "gender": "$GENDER",
+    "image": "$PORTRAIT",
+    "sameAs": [
+        "$LINKEDIN",
+        "$GITHUB"
+    ]
+}

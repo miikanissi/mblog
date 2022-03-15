@@ -14,13 +14,18 @@ DESCRIPTION ?= This is my blog.
 KEYWORDS ?= blog, mblog
 LANG ?= en
 AUTHOR ?= Author
-AUTHOR_EMAIL ?= author@email.com
+AUTHOR_EMAIL ?=
+ALUMNI ?=
+JOB_TITLE ?=
+PORTRAIT ?=
+GENDER ?=
 DATE_FORMAT ?= %Y-%m-%d %r
 INDEX_DATE_FORMAT ?= %Y-%m-%d
 BASE_URL ?= http://localhost
 REMOTE ?= /var/www/blog
 FEED_MAX ?= 20
-GITHUB ?= https://github.com
+GITHUB ?=
+LINKEDIN ?=
 
 .PHONY: help init build deploy clean
 
@@ -126,7 +131,12 @@ build/about.html: about.md $(addprefix templates/,$(addsuffix .html,website_layo
 	export TITLE="$(ABOUT_TITLE)"; \
 	export AUTHOR="$(AUTHOR)"; \
 	export AUTHOR_EMAIL="$(AUTHOR_EMAIL)"; \
+	export JOB_TITLE="$(JOB_TITLE)"; \
+	export ALUMNI="$(ALUMNI)"; \
+	export GENDER="$(GENDER)"; \
+	export PORTRAIT="$(PORTRAIT)"; \
 	export GITHUB="$(GITHUB)"; \
+	export LINKEDIN="$(LINKEDIN)"; \
 	export DESCRIPTION="$(DESCRIPTION)"; \
 	export KEYWORDS="$(KEYWORDS)"; \
 	export LANG="$(LANG)"; \
@@ -145,6 +155,10 @@ build/about.html: about.md $(addprefix templates/,$(addsuffix .html,website_layo
 	CONTENT=`cat temp-about-page.html`; \
 	rm temp-about-page.html; \
 	export CONTENT; \
+	envsubst < templates/about_jsonld.json > temp-about-jsonld.json; \
+	JSONLD=`cat temp-about-jsonld.json`; \
+	rm temp-about-jsonld.json; \
+	export JSONLD; \
 	envsubst < templates/website_layout.html > $@; \
 
 build/blog/%.html: articles/%.md $(addprefix templates/,$(addsuffix .html,website_layout post_date))
