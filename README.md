@@ -1,6 +1,6 @@
 # Mblog
 
-A makefile based static blog website generator using basic UNIX tools. Write blogs in Markdown and publish as HTML. This tool creates an index page with a list of blog posts, an about page, an rss feed, a sitemap and a robots.txt file - all with the help of a makefile.
+A makefile based static blog website generator using basic UNIX tools. Write blogs in Markdown and publish as HTML. This tool creates an index page with a list of blog posts, an about page, an rss feed, a sitemap, JSON-LD structured data snippets and a robots.txt file - all with the help of a makefile.
 
 ## Requirements
 
@@ -30,12 +30,17 @@ To configure your own variables create a file called `config` and define the fol
     LANG:=en
     AUTHOR:=Miika Nissi
     AUTHOR_EMAIL:=miika@miikanissi.com
+    JOB_TITLE:=Software Developer
+    ALUMNI:=Hame University of Applied Sciences (HAMK)
+    GENDER:=Male
+    PORTRAIT:=https://miikanissi.com/media/miika.jpg
     DATE_FORMAT:=%Y-%m-%d %r
     INDEX_DATE_FORMAT:=%Y-%m-%d
     BASE_URL:=https://miikanissi.com
     REMOTE:=/var/www/blog
     FEED_MAX:=20
     GITHUB:=https://github.com/miikanissi
+    LINKEDIN:=https://www.linkedin.com/in/miika-nissi-1806
 
 ### Variables
 
@@ -49,12 +54,17 @@ To configure your own variables create a file called `config` and define the fol
 | LANG                   | The main language used in your website                   |
 | AUTHOR                 | The creator/author of the website                        |
 | AUTHOR_EMAIL           | The email of the creator/author                          |
+| JOB_TITLE              | The job title of the author                              |
+| ALUMNI                 | The alumni of information of the author                  |
+| GENDER                 | The gender of the author                                 |
+| PORTRAIT               | URL to the author's portrait image                       |
 | DATE_FORMAT            | The date format of blog posts, check `man date` for help |
 | INDEX_DATE_FORMAT      | The date format of blog posts for the index page         |
 | BASE_URL               | The base URL of your website without a trailing          |
 | REMOTE                 | The remote directory to deploy your website to           |
 | FEED_MAX               | The maximum amount of blog posts on the rss/atom feed    |
-| GITHUB                 | The Github link for menu                                 |
+| GITHUB                 | Github link of the author for menu and about page        |
+| LINKEDIN               | LinkedIn profile of the author                           |
 
 After you have created your personal config file you can run the following:
 
