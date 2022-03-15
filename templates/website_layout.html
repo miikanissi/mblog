@@ -9,12 +9,12 @@
     <meta name="keywords" content="$KEYWORDS" />
     <link rel="icon" href="$FAVICON" type="image/x-icon" />
     <link rel="apple-touch-icon" type="image/x-icon" href="$FAVICON" />
-    <link rel="canonical" href="$BASE_URL" />
+    <link rel="canonical" href="$URL" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta property="og:image" content="$FAVICON" />
-    <meta property="og:url" content="$BASE_URL" />
+    <meta property="og:url" content="$URL" />
     <meta property="og:site_name" content="$SITE_NAME" />
     <link rel="stylesheet" href="$STYLESHEET" type="text/css" />
     <link rel="alternate" type="application/rss+xml" href="$RSS" title="$SITE_NAME" />
@@ -39,5 +39,8 @@
       <br />
       Built with <a href="https://github.com/miikanissi/mblog/">mblog</a>.
     </footer>
+    <script type="application/ld+json">
+      $JSONLD
+    </script>
   </body>
 </html>

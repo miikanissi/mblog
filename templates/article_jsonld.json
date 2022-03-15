@@ -1,0 +1,20 @@
+{
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "headline": "$TITLE",
+    "keywords": "$KEYWORDS",
+    "url": "$URL",
+    "datePublished": "$DATE_POSTED_ISO8601",
+    "dateCreated": "$DATE_POSTED_ISO8601",
+    "dateModified": "$DATE_EDITED_ISO8601",
+    "author": {
+        "@type": "Person",
+        "name": "$AUTHOR",
+        "url": "$BASE_URL"
+    },
+    "publisher": {
+        "@type": "Person",
+        "name": "$AUTHOR",
+        "url": "$BASE_URL"
+    }
+},

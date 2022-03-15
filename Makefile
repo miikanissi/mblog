@@ -63,10 +63,10 @@ build/index.html: index-top.md index-bottom.md $(ARTICLES) $(addprefix templates
 	export KEYWORDS="$(KEYWORDS)"; \
 	export LANG="$(LANG)"; \
 	export BASE_URL="$(BASE_URL)"; \
-	export STYLESHEET="./css/style.css"; \
-	export FAVICON="./media/favicon.ico"; \
-	export INDEX="./index.html"; \
-	export ABOUT="./about.html"; \
+	export STYLESHEET="$(BASE_URL)/css/style.css"; \
+	export FAVICON="$(BASE_URL)/media/favicon.ico"; \
+	export INDEX="$(BASE_URL)/"; \
+	export ABOUT="$(BASE_URL)/about"; \
 	export RSS="$(BASE_URL)/rss.xml"; \
 	export SITE_NAME="$(SITE_NAME)"; \
 	first=true; \
@@ -76,15 +76,29 @@ build/index.html: index-top.md index-bottom.md $(ARTICLES) $(addprefix templates
 		git log -n 1 --diff-filter=A --date="format:%s $(INDEX_DATE_FORMAT)" --pretty=format:'%ad%n' -- "$$f"; \
 	done | sort -k2nr | cut -d" " -f1,3- | while IFS=" " read -r FILE DATE; do \
 		"$$first" || envsubst < templates/article_separator.html; \
-		URL="`printf '%s' "\$$FILE" | sed 's,^articles/\(.*\).md,blog\/\1,'`.html" \
+		URL="$(BASE_URL)/`printf '%s' "\$$FILE" | sed 's,^articles/\(.*\).md,blog\/\1,'`" \
 		DATE="$$DATE" \
 		TITLE="`head -n1 "\$$FILE" | sed -e 's/^# //g'`" \
 		envsubst < templates/article_entry.html; \
 		first=false; \
 	done > temp-blog-items.html; \
 	BLOG_ITEMS=`cat temp-blog-items.html`; \
-	rm temp-blog-items.html; \
 	export BLOG_ITEMS; \
+	rm temp-blog-items.html; \
+	for f in $(ARTICLES); do \
+		printf '%s ' "$$f"; \
+		git log -n 1 --diff-filter=A --date=iso8601 --pretty=format:'%ad%n' -- "$$f"; \
+	done | sort -k2nr | cut -d" " -f1,3- | while IFS=" " read -r FILE DATE; do \
+		URL="$(BASE_URL)/`printf '%s' "\$$FILE" | sed 's,^articles/\(.*\).md,blog\/\1,'`" \
+		DATE_POSTED_ISO8601="$$DATE" \
+		TITLE="`head -n1 "\$$FILE" | sed -e 's/^# //g'`" \
+		envsubst < templates/article_jsonld.json; \
+		first=false; \
+	done > temp-blog-jsonld.json; \
+	sed -i '$$ s/,$$//g' temp-blog-jsonld.json; \
+	JSONLD_BLOGPOSTING=`cat temp-blog-jsonld.json`; \
+	export JSONLD_BLOGPOSTING; \
+	rm temp-blog-jsonld.json; \
 	envsubst < templates/article_list.html > temp-blog-list.html; \
 	BLOG_LIST=`cat temp-blog-list.html`; \
 	rm temp-blog-list.html; \
@@ -101,6 +115,10 @@ build/index.html: index-top.md index-bottom.md $(ARTICLES) $(addprefix templates
 	CONTENT=`cat temp-index-content.html`; \
 	rm temp-index-content.html; \
 	export CONTENT; \
+	envsubst < templates/index_jsonld.json > temp-index-jsonld.json; \
+	JSONLD=`cat temp-index-jsonld.json`; \
+	rm temp-index-jsonld.json; \
+	export JSONLD; \
 	envsubst < templates/website_layout.html > $@; \
 
 build/about.html: about.md $(addprefix templates/,$(addsuffix .html,website_layout about_content))
@@ -113,10 +131,10 @@ build/about.html: about.md $(addprefix templates/,$(addsuffix .html,website_layo
 	export KEYWORDS="$(KEYWORDS)"; \
 	export LANG="$(LANG)"; \
 	export BASE_URL="$(BASE_URL)"; \
-	export STYLESHEET="./css/style.css"; \
-	export FAVICON="./media/favicon.ico"; \
-	export INDEX="./index.html"; \
-	export ABOUT="./about.html"; \
+	export STYLESHEET="$(BASE_URL)/css/style.css"; \
+	export FAVICON="$(BASE_URL)/media/favicon.ico"; \
+	export INDEX="$(BASE_URL)/"; \
+	export ABOUT="$(BASE_URL)/about"; \
 	export RSS="$(BASE_URL)/rss.xml"; \
 	export SITE_NAME="$(SITE_NAME)"; \
 	markdown < about.md > temp-about.html; \
@@ -139,14 +157,17 @@ build/blog/%.html: articles/%.md $(addprefix templates/,$(addsuffix .html,websit
 	export KEYWORDS="$(KEYWORDS)"; \
 	export LANG="$(LANG)"; \
 	export BASE_URL="$(BASE_URL)"; \
-	export STYLESHEET="../css/style.css"; \
-	export FAVICON="../media/favicon.ico"; \
-	export INDEX="../index.html"; \
-	export ABOUT="../about.html"; \
+	export URL="$(BASE_URL)/blog/$(shell printf "%s" "$(@F)" | sed 's/\.[^.]*$$//')"; \
+	export STYLESHEET="$(BASE_URL)/css/style.css"; \
+	export FAVICON="$(BASE_URL)/media/favicon.ico"; \
+	export INDEX="$(BASE_URL)/"; \
+	export ABOUT="$(BASE_URL)/about.html"; \
 	export RSS="$(BASE_URL)/rss.xml"; \
 	export SITE_NAME="$(SITE_NAME)"; \
 	export DATE_POSTED="$(shell git log -n 1 --diff-filter=A --date="format:$(DATE_FORMAT)" --pretty=format:'%ad' -- "$<")"; \
 	export DATE_EDITED="$(shell git log -n 1 --date="format:$(DATE_FORMAT)" --pretty=format:'%ad' -- "$<")"; \
+	export DATE_POSTED_ISO8601="$(shell git log -n 1 --diff-filter=A --date=iso8601 --pretty=format:'%ad' -- "$<")"; \
+	export DATE_EDITED_ISO8601="$(shell git log -n 1 --date=iso8601 --pretty=format:'%ad' -- "$<")"; \
 	envsubst < templates/post_date.html > temp-post-date.html; \
 	POST_DATE=`cat temp-post-date.html`; \
 	rm temp-post-date.html; \
@@ -155,6 +176,11 @@ build/blog/%.html: articles/%.md $(addprefix templates/,$(addsuffix .html,websit
 	CONTENT=`cat temp-article.html`; \
 	rm temp-article.html; \
 	export CONTENT; \
+	envsubst < templates/article_jsonld.json > temp-article-jsonld.json; \
+	sed -i '$$ s/,$$//g' temp-article-jsonld.json; \
+	JSONLD=`cat temp-article-jsonld.json`; \
+	rm temp-article-jsonld.json; \
+	export JSONLD; \
 	envsubst < templates/website_layout.html > $@; \
 
 build/rss.xml: $(ARTICLES)
@@ -166,8 +192,8 @@ build/rss.xml: $(ARTICLES)
 	done | sort -k2nr | head -n $(FEED_MAX) | cut -d" " -f1,3- | while IFS=" " read -r FILE DATE; do \
 		printf '<item>\n<title>%s</title>\n<link>%s</link>\n<guid>%s</guid>\n<pubDate>%s</pubDate>\n<description><![CDATA[%s]]></description>\n</item>\n' \
 			"`head -n 1 $$FILE | sed 's/^# //'`" \
-			"$(BASE_URL)/blog/`basename $$FILE | sed 's/\.md/\.html/'`" \
-			"$(BASE_URL)/blog/`basename $$FILE | sed 's/\.md/\.html/'`" \
+			"$(BASE_URL)/blog/`basename $$FILE | sed 's/\.[^.]*$$//'`" \
+			"$(BASE_URL)/blog/`basename $$FILE | sed 's/\.[^.]*$$//'`" \
 			"$$DATE" \
 			"`markdown < $$FILE`"; \
 	done >> $@

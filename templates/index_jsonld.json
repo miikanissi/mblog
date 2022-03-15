@@ -1,0 +1,15 @@
+   {
+    "@context": "http://schema.org",
+    "@type": "Blog",
+    "name": "$SITE_NAME",
+    "description": "$DESCRIPTION",
+    "url": "$BASE_URL",
+    "author": {
+        "@type": "Person",
+        "name": "$AUTHOR",
+        "url": "$BASE_URL"
+    },
+    "blogPost": [
+        $JSONLD_BLOGPOSTING
+    ]
+}
