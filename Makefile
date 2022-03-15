@@ -187,8 +187,12 @@ build/blog/%.html: articles/%.md $(addprefix templates/,$(addsuffix .html,websit
 	rm temp-post-date.html; \
 	export POST_DATE; \
 	sed -e '/^;/d' < $< | markdown > temp-article.html; \
-	CONTENT=`cat temp-article.html`; \
+	ARTICLE_CONTENT=`cat temp-article.html`; \
 	rm temp-article.html; \
+	export ARTICLE_CONTENT; \
+	envsubst < templates/article_content.html > temp-article-content.html; \
+	CONTENT=`cat temp-article-content.html`; \
+	rm temp-article-content.html; \
 	export CONTENT; \
 	envsubst < templates/article_jsonld.json > temp-article-jsonld.json; \
 	sed -i '$$ s/,$$//g' temp-article-jsonld.json; \

@@ -35,6 +35,9 @@ img {
 figure {
   margin: auto;
 }
+.bottom-navigation {
+  text-align: right;
+}
 footer {
   color: #cccccc;
   text-align: right;
