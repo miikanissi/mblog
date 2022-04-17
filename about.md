@@ -4,7 +4,7 @@
 
 My name is Miika, I'm a software developer and a Linux/UNIX enthusiast located in Queens, New York. I particularly enjoy learning new paradigms of programming languages and finding simple, efficient solutions.
 
-I work as a Software Developer at [Tawasta](https://tawasta.fi/en/). My work revolves around building open source business solutions for Odoo, business management software, using a technology stack of Python, Javascript, XML/SCSS.
+I work as a Software Developer at [Tawasta](https://tawasta.fi/en/). My work revolves around building open source business solutions for Odoo, enterprise resource planning (ERP) software, using a technology stack of Python, Javascript, XML/SCSS.
 
 When I'm not programming or working with computers, I enjoy lifting weights, reading and being in nature.
 
@@ -15,3 +15,5 @@ My website's publishing method has migrated from an [automated bash script](http
 This meme by [@vincentdnl](https://twitter.com/vincentdnl) is an accurate depiction of my thought process for this site:
 
 ![Developer's side projects](./media/blog-meme.jpg)
+
+You can also find me and my projects on [GitHub](https://github.com/miikanissi).
