@@ -13,6 +13,53 @@ Plug 'junegunn/fzf.vim'
 
 ### Useful fzf commands that work out of the box
 
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>List</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>:Files [PATH]</code></td>
+<td>Files (runs <code>$FZF_DEFAULT_COMMAND</code> if defined)</td>
+</tr>
+<tr>
+<td><code>:GFiles [OPTS]</code></td>
+<td>Git files (<code>git ls-files</code>)</td>
+</tr>
+<tr>
+<td><code>:GFiles?</code></td>
+<td>Git files (<code>git status</code>)</td>
+</tr>
+<tr>
+<td><code>:Buffers</code></td>
+<td>Open buffers</td>
+</tr>
+<tr>
+<td><code>:Rg [PATTERN]</code></td>
+<td><a href="https://github.com/BurntSushi/ripgrep">rg</a> search result (<code>ALT-A</code> to select all, <code>ALT-D</code> to deselect all)</td>
+</tr>
+<tr>
+<td><code>:Tags [QUERY]</code></td>
+<td>Tags in the project (<code>ctags -R</code>)</td>
+</tr>
+<tr>
+<td><code>:Marks</code></td>
+<td>Marks</td>
+</tr>
+<tr>
+<td><code>:Windows</code></td>
+<td>Windows</td>
+</tr>
+<tr>
+<td><code>:Snippets</code></td>
+<td>Snippets (<a href="https://github.com/SirVer/ultisnips">UltiSnips</a>)</td>
+</tr>
+</tbody>
+</table>
+
 | Command           | List                                                                                                                    |
 | ---               | ---                                                                                                                     |
 | `:Files [PATH]`   | Files (runs `$FZF_DEFAULT_COMMAND` if defined)                                                                          |
