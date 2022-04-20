@@ -1,10 +1,10 @@
 # Fast Fuzzy Finder for Vim with fzf and ripgrep
 
-[fzf](https://github.com/junegunn/fzf) is a lightning fast command-line fuzzy finder that runs asynchronously and can be integrated in Vim to search for files, file contents and much more. In order to get the most out of the fuzzy finding capabilities of fzf we will be pairing it with [ripgrep](https://github.com/BurntSushi/ripgrep) and [bat](https://github.com/sharkdp/bat). This will improve the the search results and add a nice syntax highlighted preview window. With the power of fzf and ripgrep we can efficiently jump from file to file and improve our workflow.
+[fzf](https://github.com/junegunn/fzf) is a lightning fast command-line fuzzy finder that runs asynchronously and can be integrated in Vim to search for files, file contents, and much more. In order to get the most out of the fuzzy finding capabilities of fzf, we will be pairing it with [ripgrep](https://github.com/BurntSushi/ripgrep) and [bat](https://github.com/sharkdp/bat). This will improve the search results and add a nice syntax highlighted preview window. With the power of fzf and ripgrep we can efficiently jump from file to file and improve our workflow.
 
 ## Setting up fzf in Vim
 
-fzf has an official Vim plugin that can be installed with any Vim plugin manager. We can install fzf with [vim-plug](https://github.com/junegunn/vim-plug) by adding this to our `.vimrc`, inside the plugin manager call, and by running `:PlugInstall`.
+fzf has an official Vim plugin that can be installed with any Vim plugin manager. We can install fzf with [vim-plug](https://github.com/junegunn/vim-plug) by adding this to our `.vimrc` and by running `:PlugInstall`:
 
 ```
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -76,23 +76,20 @@ We can also use ripgrep to interactively search for file contents. fzf supports 
 
 It is very helpful to have file previews enabled in order to find the right file with fzf. This can be achieved by redefining the default fzf commands in our `.vimrc`:
 
-```
-command! -bang -nargs=? -complete=dir Files
-    \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
-command! -bang -nargs=? -complete=dir GFiles
-    \ call fzf#vim#gitfiles(<q-args>, fzf#vim#with_preview(), <bang>0)
-command! -bang -nargs=* Rg
-  \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>), 1,
-  \   fzf#vim#with_preview(), <bang>0)
-```
+    command! -bang -nargs=? -complete=dir Files
+        \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+    command! -bang -nargs=? -complete=dir GFiles
+        \ call fzf#vim#gitfiles(<q-args>, fzf#vim#with_preview(), <bang>0)
+    command! -bang -nargs=* Rg
+      \ call fzf#vim#grep(
+      \   'rg --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>), 1,
+      \   fzf#vim#with_preview(), <bang>0)
 
 Now if we call `:Files`, `:GFiles`, or `:Rg` and make our search, we can see file previews.
 
 ### Syntax highlighting
 
-By default fzf uses the `cat` command to show the file previews, but if we are mostly working on code we might want to also see some syntax highlighting in our file previews. Luckily fzf supports this out of the box with an external program [bat](https://github.com/sharkdp/bat). All we need to do is to install it and fzf automatically uses it over `cat`.
-
+By default fzf uses the `cat` command to show the file previews, but if we are mostly working on code, we might want to also see some syntax highlighting in our file previews. Luckily fzf supports this out of the box with an external program [bat](https://github.com/sharkdp/bat). All we need to do is to install it and fzf will automatically use it.
 
 ## Afterword
 
