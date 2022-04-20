@@ -6,10 +6,8 @@
 
 fzf has an official Vim plugin that can be installed with any Vim plugin manager. We can install fzf with [vim-plug](https://github.com/junegunn/vim-plug) by adding this to our `.vimrc` and by running `:PlugInstall`:
 
-```
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
-```
+    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+    Plug 'junegunn/fzf.vim'
 
 ### Useful fzf commands that work out of the box
 
@@ -62,9 +60,7 @@ By default fzf uses the `find` command to walk through a file hierarchy to locat
 
 We can override the default fzf find command by defining `FZF_DEFAULT_COMMAND` in our environment. The easiest way to do this is by setting it in our `.bashrc`:
 
-```sh
-export FZF_DEFAULT_COMMAND='rg --files --ignore-vcs --hidden'
-```
+    export FZF_DEFAULT_COMMAND='rg --files --ignore-vcs --hidden'
 
 This command passes three options to ripgrep to make ripgrep print the output of files, including hidden files while respecting rules set in `.gitignore`.
 
